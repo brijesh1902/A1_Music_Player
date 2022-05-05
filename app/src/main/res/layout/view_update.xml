@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/white"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UPDATE AVAILABLE"
+            android:layout_margin="16sp"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:layout_gravity="center"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_margin="12sp"
+            android:text="A new version of A1 Music Player is available on Playstore. Update to explore the latest features of the App."
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            >
+            <TextView
+                android:id="@+id/later"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="Later"
+                android:textColor="@color/lg_black"
+                android:layout_margin="8dp"
+                android:padding="6dp"
+                android:textStyle="bold"
+                android:gravity="center"
+
+                />
+            <TextView
+                android:id="@+id/update"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="Update now"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:layout_margin="8dp"
+                android:background="@drawable/searchfield"
+                android:backgroundTint="@color/green"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

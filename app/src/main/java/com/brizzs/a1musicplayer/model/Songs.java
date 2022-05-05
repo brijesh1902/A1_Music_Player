@@ -1,0 +1,87 @@
+package com.brizzs.a1musicplayer.model;
+
+import java.io.Serializable;
+
+public class Songs implements Serializable {
+
+    private String name, artist, image, duration;
+    private String data, date, album, albumKey;
+
+    public Songs(){}
+
+    public Songs(String name, String artist, String image, String duration,
+                 String data, String date, String album, String albumKey) {
+        this.name = name;
+        this.artist = artist;
+        this.image = image;
+        this.duration = duration;
+        this.data = data;
+        this.date = date;
+        this.album = album;
+        this.albumKey = albumKey;
+    }
+
+    public String getAlbumKey() {
+        return albumKey;
+    }
+
+    public void setAlbumKey(String albumKey) {
+        this.albumKey = albumKey;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+}

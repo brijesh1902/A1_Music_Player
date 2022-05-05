@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#60BDBDBD"
+    tools:context=".ui.main.MainActivity">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardView"
+        android:layout_margin="5dp"
+        app:cardCornerRadius="28dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/action_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/setting"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="4dp"
+                android:layout_marginEnd="5dp"
+                app:chipBackgroundColor="@color/lg_black"
+                android:src="@drawable/ic_baseline_menu_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/searchbar"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="60dp"
+                android:background="@drawable/searchfield"
+                android:drawableTint="@color/blue"
+                android:hint="Search..."
+                android:paddingStart="8dp"
+                android:paddingEnd="30dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/search_close"
+                android:layout_width="30dp"
+                android:layout_height="45dp"
+                android:layout_marginEnd="5dp"
+                app:chipBackgroundColor="@color/lg_grey"
+                app:chipIcon="@drawable/ic_close_24"
+                app:chipIconTint="@color/lg_black"
+                app:layout_constraintBottom_toBottomOf="@+id/searchbar"
+                app:layout_constraintEnd_toEndOf="@+id/searchbar"
+                app:layout_constraintTop_toTopOf="@+id/searchbar" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chip_group_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:nestedScrollingEnabled="true"
+        android:scrollbars="none"
+        app:selectionRequired="true"
+        app:chipSpacingHorizontal="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        app:singleSelection="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/recently_chip"
+            style="@style/ChipTextAppearance"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Recently"
+            app:chipBackgroundColor="@color/lg_blue"
+            app:closeIconEnabled="false" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/album_chip"
+            style="@style/ChipTextAppearance"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Album"
+            android:textAlignment="center"
+            app:chipBackgroundColor="@color/lg_blue"
+            app:closeIconEnabled="false" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/artist_chip"
+            style="@style/ChipTextAppearance"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Artist"
+            android:visibility="gone"
+            android:textAlignment="center"
+            app:chipBackgroundColor="@color/lg_blue"
+            app:closeIconEnabled="false" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/playlist_chip"
+            style="@style/ChipTextAppearance"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Playlist"
+            android:visibility="gone"
+            android:textAlignment="center"
+            app:chipBackgroundColor="@color/lg_blue"
+            app:closeIconEnabled="false" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <Button
+        android:id="@+id/permission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="Allow permission"
+        app:layout_constraintBottom_toTopOf="@+id/mini_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chip_group_main"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_songs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/mini_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chip_group_main"
+        tools:listitem="@layout/songs_view" />
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/mini_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chip_group_main" />
+
+    <FrameLayout
+        android:id="@+id/mini_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <fragment
+            android:name="com.brizzs.a1musicplayer.ui.mini.MiniPlayerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:layout="@layout/fragment_mini_player" />
+    </FrameLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
