@@ -3,7 +3,7 @@
   The music player is only now based on artists or albums. Music Player will guide you to find all the music files in seconds in Ascending Order of the songs added to your device and supports quick search relative music through artist or album or title.
 
 # Screen Design
-  <img src="/screenshots/graphic.png" background-size: 100% 100%>
+  <img src="/screenshots/graphic.png" style="width:auto;">
   
 # Key Features:
 * Support all the most popular music file formats.
