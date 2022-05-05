@@ -3,7 +3,7 @@
   The music player is only now based on artists or albums. Music Player will guide you to find all the music files in seconds in Ascending Order of the songs added to your device and supports quick search relative music through artist or album or title.
 
 # Screen Design
-  https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/graphic.png
+  |<img src="/screenshots/graphic.png" width="250">|
   
 # Key Features:
 * Support all the most popular music file formats.
@@ -12,4 +12,4 @@
 * Support notification status: shows album artwork, play/ pause, next/previous of playing a song in notification status.
 * Headset support.
 * Supports shuffle of the playing list.
-* Easy SEARCH. Finding all your local music files has never been so easy.
+* Supports background play.
