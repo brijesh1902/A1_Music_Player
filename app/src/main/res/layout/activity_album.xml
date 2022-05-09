@@ -42,8 +42,7 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include
-        layout="@layout/content_scrolling" />
+    <include layout="@layout/content_scrolling" />
 
     <FrameLayout
         android:id="@+id/mini_card"
@@ -53,7 +52,7 @@
         >
 
         <fragment
-            android:name="com.bpal.musicplayer.ui.mini.MiniPlayerFragment"
+            android:name="com.brizzs.a1musicplayer.ui.mini.MiniPlayerFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:layout="@layout/fragment_mini_player" />

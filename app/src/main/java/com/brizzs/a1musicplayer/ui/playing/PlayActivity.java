@@ -2,6 +2,8 @@ package com.brizzs.a1musicplayer.ui.playing;
 
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_NAME;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
+import static com.brizzs.a1musicplayer.utils.Common.actionName;
+import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.createTime;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
@@ -25,6 +27,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,10 +36,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.brizzs.a1musicplayer.adapters.SongsAdapter;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
+import com.brizzs.a1musicplayer.ui.album.AlbumActivity;
 import com.brizzs.a1musicplayer.ui.main.MainActivity;
 import com.brizzs.a1musicplayer.utils.TinyDB;
 import com.brizzs.a1musicplayer.model.Songs;
@@ -58,7 +63,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     ImageView play, image, next, previous;
     TextView name, singer;
     SeekBar seekBar;
-    public static int position, delay = 800, maxVolume, volume, play_duration;
+    public static int position, delay = 500, maxVolume, volume;
     final Handler handler = new Handler();
     TinyDB tinyDB;
     public static ArrayList<Songs> songslist = new ArrayList<>();
@@ -71,6 +76,8 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     SongsAdapter adapter;
     boolean isplaylistOpen = false, isService = false ;
     Animation animation;
+    swipeListener swipeListener;
+    String actionBack;
 
     @Override
     public void onBackPressed() {
@@ -106,7 +113,10 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         isService = isServiceRunning(MusicService.class.getName(), getApplicationContext());
 
         position = getIntent().getIntExtra("pos", 0);
+        actionBack = getIntent().getStringExtra(actionName);
         songslist = (ArrayList<Songs>) getIntent().getSerializableExtra(current_list);
+
+        if (actionBack != null) Log.e("onCreate: ", actionBack);
 
         audioManager = (AudioManager) getApplicationContext().getSystemService(AUDIO_SERVICE);
         maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
@@ -162,6 +172,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             }
         });
 
+        swipeListener = new swipeListener(binding.img);
         setPlayname();
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
@@ -305,6 +316,9 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         };
         updateseek.start();
 
+        binding.pName.setSelected(true);
+        binding.pArtist.setSelected(true);
+
     }
 
     /*private void setSongGradient() {
@@ -412,6 +426,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     @Override
     public void removeClicked() {
         unbindService(this);
+        finish();
     }
 
     private class swipeListener implements View.OnTouchListener {
@@ -446,7 +461,6 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
                   if (Math.abs(xDiff) > Math.abs(yDiff)) {
 
                   }*/
-
 
                     if (e1.getX() > ver_divider) {
                         if (e1.getY() < e2.getY()) {

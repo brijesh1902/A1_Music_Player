@@ -1,5 +1,7 @@
 package com.brizzs.a1musicplayer.adapters;
 
+import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
+import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
 import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.artist;
 import static com.brizzs.a1musicplayer.utils.Common.artists;
@@ -81,10 +83,10 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int pos) {
 
         if (type.equals(recently)) {
-            final Songs options = data.get(position);
+            final Songs options = data.get(pos);
 
             Glide.with(holder.itemView.getContext()).load(options.getImage())
                     .placeholder(R.drawable.music_note_24).error(R.drawable.music_note_24)
@@ -92,17 +94,22 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
             holder.name.setText(options.getName());
             holder.singer.setText(options.getArtist());
 
-            Log.e("onBindViewHolder: ", options.getName()+"\n"+options.getImage()+"\n"+options.getArtist());
-
+            if (songslist.size() != 0  && songslist.get(position).getName().equals(options.getName())) {
+                Glide.with(holder.gif.getContext()).load(R.drawable.giphy).into(holder.gif);
+                holder.gif.setVisibility(View.VISIBLE);
+            } else {
+                holder.gif.setVisibility(View.GONE);
+            }
+//            Log.e("onBindViewHolder: ", options.getName()+"\n"+options.getImage()+"\n"+options.getArtist());
         } else if (type.equals(album)) {
-            Album options = albums.get(position);
+            Album options = albums.get(pos);
             Glide.with(holder.itemView.getContext()).load(options.getImage())
                     .placeholder(R.drawable.music_note_24).error(R.drawable.music_note_24)
                     .transition(DrawableTransitionOptions.withCrossFade()).into(holder.image);
             holder.name.setText(options.getAlbum());
             holder.singer.setText(options.getArtist());
         } else if (type.equals(artists)) {
-            Artist options = artistList.get(position);
+            Artist options = artistList.get(pos);
             Glide.with(holder.itemView.getContext()).load(options.getImage())
                     .placeholder(R.drawable.music_note_24).error(R.drawable.music_note_24)
                     .transition(DrawableTransitionOptions.withCrossFade()).into(holder.image);
@@ -125,7 +132,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView singer, name;
-        ImageView image;
+        ImageView image, gif;
         LinearLayout more;
         ConstraintLayout parent;
 
@@ -136,6 +143,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
             image = itemView.findViewById(R.id.img);
             singer = itemView.findViewById(R.id.song_artist);
             more = itemView.findViewById(R.id.more);
+            gif = itemView.findViewById(R.id.gif);
             parent = itemView.findViewById(R.id.parent);
 
             itemView.setOnClickListener(v -> {

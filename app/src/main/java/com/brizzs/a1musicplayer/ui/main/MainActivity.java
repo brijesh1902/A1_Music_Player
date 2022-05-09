@@ -1,5 +1,6 @@
 package com.brizzs.a1musicplayer.ui.main;
 
+import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_FILE;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
 import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;

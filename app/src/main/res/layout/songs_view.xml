@@ -13,25 +13,24 @@
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/parent"
         android:background="@drawable/bg_gradient">
 
         <ImageView
-            android:transitionName="image"
             android:id="@+id/img"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher"
+            android:transitionName="image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:src="@mipmap/ic_launcher" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:transitionName="songname"
             android:id="@+id/song_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -44,12 +43,12 @@
             android:textColor="@color/lg_blue"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:transitionName="songname"
             app:layout_constraintEnd_toStartOf="@+id/more"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/img" />
 
         <TextView
-            android:transitionName="singer"
             android:id="@+id/song_artist"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -64,25 +63,35 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             android:textStyle="normal"
+            android:transitionName="singer"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/more"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/song_name" />
 
         <LinearLayout
-            android:visibility="gone"
             android:id="@+id/more"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="end"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/song_img">
+            android:orientation="vertical"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
+                android:visibility="gone"
                 android:src="@drawable/ic_more" />
+
+            <ImageView
+                android:id="@+id/gif"
+                android:visibility="gone"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/giphy" />
+
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

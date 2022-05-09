@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -87,5 +88,32 @@ public class NotificationReceiver extends BroadcastReceiver {
             }
         }
 
+       /* if (intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)) {
+            KeyEvent keyEvent = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
+
+            switch (keyEvent.getKeyCode()) {
+                case KeyEvent.KEYCODE_HEADSETHOOK:
+                case KeyEvent.KEYCODE_MEDIA_PLAY:
+                case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                    serviceIntent.putExtra(actionName, PLAY);
+                    context.startService(serviceIntent);
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_STOP:
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_NEXT:
+                    serviceIntent.putExtra(actionName, NEXT);
+                    context.startService(serviceIntent);
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                    serviceIntent.putExtra(actionName, PREVIOUS);
+                    context.startService(serviceIntent);
+                    break;
+            }
+        }*/
+    }
+
+    public String ComponentName() {
+        return this.getClass().getName();
     }
 }

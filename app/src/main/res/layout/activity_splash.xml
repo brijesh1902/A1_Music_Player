@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splashcolor"
+    android:background="@color/lg_grey"
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".ui.mini.SplashActivity">
@@ -19,8 +19,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:text="@string/app_name"
-        android:textColor="@color/lg_blue"
+        android:textColor="@color/blue"
         android:textSize="30sp"
+        android:shadowColor="@color/lg_blue"
+        android:shadowRadius="16"
+        android:shadowDx="8"
         android:textStyle="bold" />
 
 </LinearLayout>

@@ -31,7 +31,7 @@ public class App extends Application {
         super.onCreate();
 
         MobileAds.initialize(this, initializationStatus -> {});
-        appOpenManager = new AppOpenManager(this);
+//        appOpenManager = new AppOpenManager(this);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL, NAME, NotificationManager.IMPORTANCE_HIGH);

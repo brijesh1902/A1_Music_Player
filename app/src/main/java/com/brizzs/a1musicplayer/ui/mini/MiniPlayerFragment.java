@@ -48,6 +48,7 @@ import com.google.android.gms.ads.AdRequest;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MiniPlayerFragment extends Fragment implements ServiceConnection, ActionPlaying {
 
@@ -75,10 +76,11 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
 
         animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_item);
 
-        if (isService) start_service();
+        if (isService)
+            start_service();
         else {
             binding.parent.setVisibility(View.GONE);
-            binding.adView.setVisibility(View.VISIBLE);
+//            binding.adView.setVisibility(View.VISIBLE);
         }
 
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -150,34 +152,39 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
         setPlay();
     }
 
+
     public void setPlay() {
         getValues();
 
-//        setView(getContext(), binding.name, binding.artist, binding.img);
-        Glide.with(view.getContext()).load(image)
-                .placeholder(R.drawable.music_note_24)
-                .error(R.drawable.music_note_24)
-                .into(binding.img);
+        try {
+            Glide.with(requireActivity()).load(image)
+                    .placeholder(R.drawable.music_note_24)
+                    .error(R.drawable.music_note_24)
+                    .into(binding.img);
 
-        binding.name.setText(name);
-        binding.artist.setText(artist);
+            binding.name.setText(name);
+            binding.artist.setText(artist);
 
-        updateseek = new Thread() {
-            @Override
-            public void run() {
-                int cp = 0;
-                try {
-                    while (cp < musicService.getDuration()) {
-                        cp = musicService.getCurrentPosition();
-                        binding.indicator.setProgressCompat(cp, true);
-                        sleep(delay);
+            updateseek = new Thread() {
+                @Override
+                public void run() {
+                    int cp = 0;
+                    try {
+                        while (cp < musicService.getDuration()) {
+                            cp = musicService.getCurrentPosition();
+                            binding.indicator.setProgressCompat(cp, true);
+                            sleep(delay);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
-        };
-        updateseek.start();
+            };
+            updateseek.start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -271,7 +278,12 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
 
     @Override
     public void removeClicked() {
-
+        try {
+            requireActivity().unbindService(this);
+            getFragmentManager().beginTransaction().detach(this).commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

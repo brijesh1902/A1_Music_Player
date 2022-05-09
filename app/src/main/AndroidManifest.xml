@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.album.AlbumActivity"
+            android:name=".ui.album.AlbumActivity" android:parentActivityName=".ui.main.MainActivity"
             android:exported="false" android:screenOrientation="portrait"
             android:label="@string/title_activity_album"
             android:theme="@style/Theme.MusicPlayer.NoActionBar"
@@ -53,9 +53,6 @@
             android:hardwareAccelerated="true"
             android:launchMode="standard">
         </activity>
-<!--        <activity-->
-<!--            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"-->
-<!--            android:theme="@style/Base.Theme.AppCompat" />-->
 
         <service
             android:name=".service.MusicService"
@@ -67,6 +64,7 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <action android:name="PLAY" />
                 <action android:name="PREVIOUS" />

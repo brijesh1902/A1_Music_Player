@@ -1,6 +1,7 @@
 package com.brizzs.a1musicplayer.service;
 
 import static androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC;
+import static androidx.core.app.NotificationCompat.getAction;
 import static com.brizzs.a1musicplayer.utils.App.CHANNEL;
 import static com.brizzs.a1musicplayer.utils.App.NEXT;
 import static com.brizzs.a1musicplayer.utils.App.PAUSE;
@@ -24,20 +25,27 @@ import static com.brizzs.a1musicplayer.utils.Common.servicePosition;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.RemoteControlClient;
+import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.media.session.MediaButtonReceiver;
 
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.R;
@@ -61,6 +69,9 @@ public class MusicService extends Service {
     TinyDB tinyDB;
     SharedPreferences.Editor editor;
     PendingIntent prevPending, playPending, nextPending, removePending, replayPending, forwardPending, pendingIntent;
+    private ComponentName remoteComponentName;
+    private RemoteControlClient remoteControlClient;
+    AudioManager audioManager;
 
     @Override
     public void onCreate() {
@@ -70,10 +81,36 @@ public class MusicService extends Service {
         tinyDB = new TinyDB(getApplicationContext());
         editor = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE).edit();
 
+        mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+//        mediaSessionCompat.setCallback(this);
+        mediaSessionCompat.setActive(true);
+//        registerRemoteClient();
+
     }
 
-    public void showToast(String s) {
-        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+    private void registerRemoteClient(){
+        remoteComponentName = new ComponentName(getApplicationContext(), new NotificationReceiver().ComponentName());
+        try {
+            if(remoteControlClient == null) {
+                audioManager.registerMediaButtonEventReceiver(remoteComponentName);
+                Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                mediaButtonIntent.setComponent(remoteComponentName);
+                PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0);
+                remoteControlClient = new RemoteControlClient(mediaPendingIntent);
+                audioManager.registerRemoteControlClient(remoteControlClient);
+            }
+            remoteControlClient.setTransportControlFlags(
+                    RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+                            RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                            RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE |
+                            RemoteControlClient.FLAG_KEY_MEDIA_STOP |
+                            RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
+                            RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Nullable
@@ -118,12 +155,23 @@ public class MusicService extends Service {
                     previousSong();
                     break;
                 case REMOVE:
-                    onDestroy();
+                    removeClicked();
                     break;
             }
         }
 
+        MediaButtonReceiver.handleIntent(mediaSessionCompat, intent);
+
         return START_STICKY;
+    }
+
+    private void removeClicked() {
+        if (actionPlaying != null) {
+            stopForeground(true);
+            stopSelf();
+            songslist.clear();
+            actionPlaying.removeClicked();
+        }
     }
 
     public void previousSong() {
@@ -267,10 +315,12 @@ public class MusicService extends Service {
         String name = list.get(position).getName();
         String artist = list.get(position).getArtist();
 
+
         if (mediaPlayer.isPlaying()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 notification = new Notification.Builder(this, CHANNEL)
                         .setSmallIcon(R.drawable.ic_notify)
+                        .setColor(ContextCompat.getColor(this, R.color.blue))
                         .setLargeIcon(thumbnail)
                         .setContentTitle(name)
                         .setContentText(artist)
@@ -278,7 +328,10 @@ public class MusicService extends Service {
                         .addAction(play_pause, PLAY, playPending)
                         .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                         .setContentIntent(pendingIntent)
-                        .setStyle(new Notification.MediaStyle())
+                        .setStyle(new Notification.MediaStyle()
+//                                .setShowActionsInCompactView(0)
+//                                .setMediaSession((MediaSession.Token) mediaSessionCompat.getSessionToken().getToken())
+                        )
                         .setVisibility(Notification.VISIBILITY_PUBLIC)
                         .setAutoCancel(false)
                         .setOnlyAlertOnce(true)
@@ -290,6 +343,7 @@ public class MusicService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 notification = new Notification.Builder(this, CHANNEL)
                         .setSmallIcon(R.drawable.ic_notify)
+                        .setColor(ContextCompat.getColor(this, R.color.blue))
                         .setLargeIcon(thumbnail)
                         .setContentTitle(name)
                         .setContentText(artist)
@@ -298,9 +352,12 @@ public class MusicService extends Service {
                         .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                         .addAction(R.drawable.ic_close_24, REMOVE, removePending)
                         .setContentIntent(pendingIntent)
-                        .setStyle(new Notification.MediaStyle())
+                        .setStyle(new Notification.MediaStyle()
+//                                .setShowActionsInCompactView(0)
+//                                .setMediaSession((MediaSession.Token) mediaSessionCompat.getSessionToken().getToken())
+                        )
                         .setVisibility(Notification.VISIBILITY_PUBLIC)
-                        .setAutoCancel(true)
+//                        .setDeleteIntent(pendingIntent)
                         .setOnlyAlertOnce(true)
                         .setAutoCancel(true)
                         .build();
@@ -316,6 +373,7 @@ public class MusicService extends Service {
     private void belowOreoRemove(String name, String artist, Bitmap thumbnail, int play_pause) {
         notification = new NotificationCompat.Builder(this, CHANNEL)
                 .setSmallIcon(R.drawable.ic_notify)
+                .setColor(ContextCompat.getColor(this, R.color.blue))
                 .setLargeIcon(thumbnail)
                 .setContentTitle(name)
                 .setContentText(artist)
@@ -324,10 +382,11 @@ public class MusicService extends Service {
                 .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                 .addAction(R.drawable.ic_close_24, REMOVE, removePending)
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mediaSessionCompat.getSessionToken()))
+//                        .setShowActionsInCompactView(0)
+//                        .setMediaSession(mediaSessionCompat.getSessionToken())
+                )
                 .setContentIntent(pendingIntent)
                 .setVisibility(VISIBILITY_PUBLIC)
-                .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(true)
                 .build();
@@ -336,6 +395,7 @@ public class MusicService extends Service {
     private void belowOreo(String name, String artist, Bitmap thumbnail, int play_pause) {
         notification = new NotificationCompat.Builder(this, CHANNEL)
                 .setSmallIcon(R.drawable.ic_notify)
+                .setColor(ContextCompat.getColor(this, R.color.blue))
                 .setLargeIcon(thumbnail)
                 .setContentTitle(name)
                 .setContentText(artist)
@@ -343,7 +403,9 @@ public class MusicService extends Service {
                 .addAction(play_pause, PLAY, playPending)
                 .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mediaSessionCompat.getSessionToken()))
+//                        .setShowActionsInCompactView(0)
+//                        .setMediaSession(mediaSessionCompat.getSessionToken())
+                )
                 .setContentIntent(pendingIntent)
                 .setVisibility(VISIBILITY_PUBLIC)
                 .setAutoCancel(false)

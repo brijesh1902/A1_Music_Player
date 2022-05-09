@@ -15,7 +15,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/music_note_24"
         android:transitionName="image"
-        app:layout_constraintBottom_toTopOf="@+id/p_name"
+        app:layout_constraintBottom_toTopOf="@+id/nlayout"
         app:layout_constraintEnd_toEndOf="@+id/gradient"
         app:layout_constraintStart_toStartOf="@+id/gradient"
         app:layout_constraintTop_toTopOf="@+id/gradient" />
@@ -47,45 +47,49 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/p_name"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/nlayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="5dp"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:singleLine="true"
-        android:text="Song"
-        android:padding="1dp"
+        android:orientation="vertical"
         android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:transitionName="songname"
-        app:layout_constraintBottom_toTopOf="@+id/p_artist"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
-
-    <TextView
-        android:id="@+id/p_artist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:singleLine="true"
-        android:text="Singer"
-        android:padding="1dp"
-        android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:transitionName="singer"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24sp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/seekBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        >
+        <TextView
+            android:id="@+id/p_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="Song"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:transitionName="songname"
+            />
+
+        <TextView
+            android:id="@+id/p_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:layout_margin="8dp"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="Singer"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:transitionName="singer"
+            />
+
+    </LinearLayout>
+
 
     <ImageView
         android:id="@+id/p_play"

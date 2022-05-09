@@ -3,14 +3,18 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/action_bar.xml" value="0.1505" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/bg_circle.xml" value="0.1275" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/bg_gradient.xml" value="0.1275" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/bg_rounded.xml" value="0.1275" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/searchfield.xml" value="0.1275" />
+        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_album.xml" value="0.20416666666666666" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_play.xml" value="0.20416666666666666" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_settings.xml" value="0.20416666666666666" />
+        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_splash.xml" value="0.20416666666666666" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/fragment_mini_player.xml" value="0.18611111111111112" />
+        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/songs_view.xml" value="0.9" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/view_update.xml" value="0.22" />
         <entry key="..\:/LiveProjects/A1MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
       </map>

@@ -1,11 +1,18 @@
 package com.brizzs.a1musicplayer.ui.album;
 
+import static com.brizzs.a1musicplayer.utils.Common.MUSIC_FILE;
+import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
+import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
+import static com.brizzs.a1musicplayer.utils.Common.actionName;
+import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.current_album;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
+import static com.brizzs.a1musicplayer.utils.Common.value;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -38,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCallback {
 
@@ -47,6 +55,7 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
     SongsAdapter adapter;
     List<Songs> list = new ArrayList<>();
     RecyclerView recyclerView;
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +64,15 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
         binding = ActivityAlbumBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
         recyclerView = findViewById(R.id.rv_songs);
         Toolbar toolbar = binding.toolbar;
+        toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
         setSupportActionBar(toolbar);
         CollapsingToolbarLayout toolBarLayout = binding.toolbarLayout;
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         currentAlbum = (Album) getIntent().getSerializableExtra(current_album);
 
@@ -88,10 +102,20 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        value = preferences.getString(MUSIC_FILE, null);
+        SHOW_MINI_PLAYER = value != null;
+
+    }
+
+        @Override
     public void Callback(int adapterPosition, List<Songs> data, ImageView image, TextView name, TextView singer) {
         Intent intent = new Intent(getApplicationContext(), PlayActivity.class);
         intent.putExtra("pos", adapterPosition);
         intent.putExtra(duration, "0");
+//        intent.putExtra(actionName, album);
         intent.putExtra(current_list, (Serializable) data);
 
         Pair<View, String> pair1 = Pair.create(image, "image");
