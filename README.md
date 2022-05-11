@@ -4,7 +4,7 @@
 
 # Available on Playstore 
 <a href="https://play.google.com/store/apps/details?id=com.brizzs.a1musicplayer">
-  <img src="/screenshots/google_play_badge.png" alt="Playstore link" >
+  <img src="/screenshots/google_play_badge.png" alt="Playstore link" width="360" height="128" >
 </a>
 
 # Screen Design
@@ -18,3 +18,5 @@
 * Headset support.
 * Supports shuffle of the playing list.
 * Supports background play.
+* Supports auto play/ pause when incoming calls.
+* Swipe Up/ Down on the left side screen to increase/ decrease volume.
