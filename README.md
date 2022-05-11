@@ -4,11 +4,11 @@
 
 # Available on Playstore 
 <a href="https://play.google.com/store/apps/details?id=com.brizzs.a1musicplayer">
-  <img src="/screenshots/google_play_badge.png" alt="Playstore link" style="width:200px;height:80px;">
+  <img src="/screenshots/google_play_badge.png" alt="Playstore link" >
 </a>
 
 # Screen Design
-  <img src="/screenshots/graphic_design.png">
+  <img src="/screenshots/graphic_design.png" alt="Graphic Design">
   
 # Key Features:
 * Support all the most popular music file formats.
