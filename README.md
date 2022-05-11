@@ -2,6 +2,11 @@
   Music Player with quick search all your music files is the best free music player, many users download it all over the world, now free download music player/audio player.
   The music player is only now based on artists or albums. Music Player will guide you to find all the music files in seconds in Ascending Order of the songs added to your device and supports quick search relative music through artist or album or title.
 
+# Available on Playstore 
+<a href="https://play.google.com/store/apps/details?id=com.brizzs.a1musicplayer">
+  <img src="/screenshots/graphic_design.png" alt="Playstore link" style="width:42px;height:42px;">
+</a>
+
 # Screen Design
   <img src="/screenshots/graphic_design.png">
   
