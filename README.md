@@ -4,7 +4,7 @@
 
 # Available on Playstore 
 <a href="https://play.google.com/store/apps/details?id=com.brizzs.a1musicplayer">
-  <img src="/screenshots/google_play_badge.png" alt="Playstore link" style="width:150px;height:80px;">
+  <img src="/screenshots/google_play_badge.png" alt="Playstore link" style="width:200px;height:80px;">
 </a>
 
 # Screen Design
