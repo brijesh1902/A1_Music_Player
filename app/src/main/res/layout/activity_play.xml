@@ -7,6 +7,15 @@
     android:background="@drawable/bg_gradient"
     tools:context=".ui.playing.PlayActivity">
 
+    <FrameLayout
+        android:id="@+id/eqFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/img"
         android:layout_width="match_parent"
@@ -51,15 +60,15 @@
         android:id="@+id/nlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24sp"
         android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/seekBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent">
+
         <TextView
             android:id="@+id/p_name"
             android:layout_width="wrap_content"
@@ -71,25 +80,54 @@
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:transitionName="songname"
-            />
+            android:transitionName="songname" />
 
         <TextView
             android:id="@+id/p_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
             android:layout_margin="8dp"
+            android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:text="Singer"
             android:textColor="@color/white"
             android:textSize="14sp"
-            android:transitionName="singer"
-            />
+            android:transitionName="singer" />
 
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/playlist"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/ic_playlist_play_24"
+        app:layout_constraintBottom_toBottomOf="@+id/forward"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/forward"
+        app:layout_constraintTop_toTopOf="@+id/forward" />
+
+    <ImageView
+        android:id="@+id/forward"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/ic_forward_10_24"
+        app:layout_constraintBottom_toBottomOf="@+id/p_next"
+        app:layout_constraintStart_toEndOf="@+id/p_next"
+        app:layout_constraintTop_toTopOf="@+id/p_next" />
+
+    <ImageView
+        android:id="@+id/p_next"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/ic_skip_next_24"
+        app:layout_constraintBottom_toBottomOf="@+id/p_play"
+        app:layout_constraintStart_toEndOf="@+id/p_play"
+        app:layout_constraintTop_toTopOf="@+id/p_play" />
 
     <ImageView
         android:id="@+id/p_play"
@@ -107,15 +145,6 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
-        android:id="@+id/p_next"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="10dp"
-        android:src="@drawable/ic_skip_next_24"
-        app:layout_constraintBottom_toBottomOf="@+id/p_play"
-        app:layout_constraintStart_toEndOf="@+id/p_play"
-        app:layout_constraintTop_toTopOf="@+id/p_play" />
 
     <ImageView
         android:id="@+id/p_previous"
@@ -137,15 +166,6 @@
         app:layout_constraintEnd_toStartOf="@+id/p_previous"
         app:layout_constraintTop_toTopOf="@+id/p_previous" />
 
-    <ImageView
-        android:id="@+id/forward"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="5dp"
-        android:src="@drawable/ic_forward_10_24"
-        app:layout_constraintBottom_toBottomOf="@+id/p_next"
-        app:layout_constraintStart_toEndOf="@+id/p_next"
-        app:layout_constraintTop_toTopOf="@+id/p_next" />
 
     <ImageView
         android:id="@+id/shuffle"
@@ -158,15 +178,17 @@
         app:layout_constraintTop_toTopOf="@+id/replay" />
 
     <ImageView
-        android:id="@+id/playlist"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="10dp"
-        android:background="@drawable/ic_playlist_play_24"
-        app:layout_constraintBottom_toBottomOf="@+id/forward"
-        app:layout_constraintStart_toEndOf="@+id/forward"
-        app:layout_constraintTop_toTopOf="@+id/forward" />
-
+        android:id="@+id/loop"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone"
+        android:background="@drawable/ic_baseline_loop_blue_24"
+        app:layout_constraintBottom_toBottomOf="@+id/shuffle"
+        app:layout_constraintEnd_toStartOf="@+id/shuffle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/shuffle" />
 
     <TextView
         android:id="@+id/startTime"
@@ -220,11 +242,25 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:padding="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/bg_circle"
         android:backgroundTint="@color/white"
-        android:src="@drawable/ic_baseline_arrow_back_24" />
+        android:padding="8dp"
+        android:src="@drawable/ic_baseline_arrow_back_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/equalizer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_circle"
+        android:backgroundTint="@color/white"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:src="@drawable/ic_baseline_equalizer_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

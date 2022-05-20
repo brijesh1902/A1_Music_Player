@@ -1,7 +1,15 @@
 package com.brizzs.a1musicplayer.model;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 
+//@Entity(tableName = "songs", indices = {@Index(value = {"id"}, unique = true)})
 public class Songs implements Serializable {
 
     private String name, artist, image, duration;
@@ -9,8 +17,8 @@ public class Songs implements Serializable {
 
     public Songs(){}
 
-    public Songs(String name, String artist, String image, String duration,
-                 String data, String date, String album, String albumKey) {
+    public Songs( String name, String artist,
+                 String image, String duration, String data, String date, String album, String albumKey) {
         this.name = name;
         this.artist = artist;
         this.image = image;

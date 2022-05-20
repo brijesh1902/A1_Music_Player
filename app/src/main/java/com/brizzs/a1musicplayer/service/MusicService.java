@@ -1,7 +1,6 @@
 package com.brizzs.a1musicplayer.service;
 
 import static androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC;
-import static androidx.core.app.NotificationCompat.getAction;
 import static com.brizzs.a1musicplayer.utils.App.CHANNEL;
 import static com.brizzs.a1musicplayer.utils.App.NEXT;
 import static com.brizzs.a1musicplayer.utils.App.PAUSE;
@@ -33,14 +32,12 @@ import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RemoteControlClient;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.view.KeyEvent;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -60,7 +57,6 @@ public class MusicService extends Service {
 
     IBinder binder = new MyBinder();
     MediaPlayer mediaPlayer;
-    public ArrayList<Songs> list = new ArrayList<>();
     Uri uri;
     public int position = -1;
     ActionPlaying actionPlaying;
@@ -119,6 +115,10 @@ public class MusicService extends Service {
         return binder;
     }
 
+    public int getAudioSessionId() {
+        return mediaPlayer.getAudioSessionId();
+    }
+
     public class MyBinder extends Binder {
         public MusicService getService() {
             return MusicService.this;
@@ -134,30 +134,41 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        int myPosition = intent.getIntExtra(servicePosition, -1);
-        list = songslist;
 
-        if (myPosition != -1) playMedia(myPosition);
+        try {
+            int myPosition = intent.getIntExtra(servicePosition, -1);
+            if (myPosition != -1) playMedia(myPosition);
 
-        String action_name = intent.getStringExtra(actionName);
-        if (action_name != null) {
-            switch (action_name) {
-                case PLAY:
-                    play_pause();
-                    break;
-                case PAUSE:
-                    pause();
-                    break;
-                case NEXT:
-                    nextSong();
-                    break;
-                case PREVIOUS:
-                    previousSong();
-                    break;
-                case REMOVE:
-                    removeClicked();
-                    break;
+            String action_name = intent.getStringExtra(actionName);
+            if (action_name != null) {
+                switch (action_name) {
+                    case PLAY:
+                        play_pause();
+                        break;
+                    case PAUSE:
+                        pause();
+                        break;
+                    case NEXT:
+                        nextSong();
+                        break;
+                    case PREVIOUS:
+                        previousSong();
+                        break;
+                    case REMOVE:
+                        removeClicked();
+                        break;
+                }
             }
+
+            new Handler().post(() -> {
+                if (mediaPlayer.getCurrentPosition() == mediaPlayer.getDuration()) {
+                    onCompleted();
+                }
+            });
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         MediaButtonReceiver.handleIntent(mediaSessionCompat, intent);
@@ -176,7 +187,7 @@ public class MusicService extends Service {
 
     public void previousSong() {
         if (actionPlaying != null) {
-            save(position);
+            save(position, songslist);
             actionPlaying.previousClicked();
         }
     }
@@ -184,7 +195,7 @@ public class MusicService extends Service {
     public void nextSong() {
         if (actionPlaying != null) {
             actionPlaying.nextClicked();
-            save(position);
+            save(position, songslist);
         }
     }
 
@@ -194,12 +205,20 @@ public class MusicService extends Service {
         }
     }
 
+    public void setLoop(boolean b){
+        mediaPlayer.setLooping(b);
+    }
+
+    public boolean isLoop(){
+        return mediaPlayer.isLooping();
+    }
+
     private void playMedia(int startposition) {
         position = startposition;
         if (mediaPlayer != null) {
             stop();
             release();
-            if (list != null) {
+            if (songslist != null) {
                 create(position);
                 start();
             }
@@ -243,12 +262,12 @@ public class MusicService extends Service {
 
     public void create(int pos) {
         position = pos;
-        uri = Uri.parse(list.get(position).getData());
+        uri = Uri.parse(songslist.get(position).getData());
         mediaPlayer = MediaPlayer.create(getBaseContext(), uri);
-        save(position);
+        save(position, songslist);
     }
 
-    public void save(int i) {
+    public void save(int i, ArrayList<Songs> list) {
         TITLE = list.get(i).getName();
         IMAGE = list.get(i).getArtist();
         ARTIST = list.get(i).getImage();
@@ -260,14 +279,14 @@ public class MusicService extends Service {
     }
 
     public void onCompleted() {
-        mediaPlayer.setOnCompletionListener(mp -> {
-            if (actionPlaying != null) {
-                actionPlaying.nextClicked();
-                onCompleted();
-                if (mediaPlayer != null) onCompleted();
-            }
-
-        });
+        if (mediaPlayer != null) {
+            mediaPlayer.setOnCompletionListener(mp -> {
+                if (actionPlaying != null) {
+                    actionPlaying.nextClicked();
+                    onCompleted();
+                }
+            });
+        }
     }
 
     public void setCallback(ActionPlaying playing) {
@@ -295,7 +314,7 @@ public class MusicService extends Service {
         Intent forwardIntent = new Intent(this, NotificationReceiver.class).setAction(FORWARD_10);
         forwardPending = PendingIntent.getBroadcast(this, 0, forwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
        */
-        String picture = list.get(position).getImage();
+        String picture = songslist.get(position).getImage();
         Bitmap thumbnail = null;
         if (picture != null) {
             try {
@@ -307,13 +326,13 @@ public class MusicService extends Service {
         } else thumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.music_note_24);
 
         Intent intent = new Intent(this, PlayActivity.class);
-        intent.putExtra(current_list, (Serializable) list);
+        intent.putExtra(current_list, (Serializable) songslist);
         intent.putExtra("pos", position);
         intent.putExtra(duration, getCurrentPosition());
         pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        String name = list.get(position).getName();
-        String artist = list.get(position).getArtist();
+        String name = songslist.get(position).getName();
+        String artist = songslist.get(position).getArtist();
 
 
         if (mediaPlayer.isPlaying()) {
@@ -357,7 +376,6 @@ public class MusicService extends Service {
 //                                .setMediaSession((MediaSession.Token) mediaSessionCompat.getSessionToken().getToken())
                         )
                         .setVisibility(Notification.VISIBILITY_PUBLIC)
-//                        .setDeleteIntent(pendingIntent)
                         .setOnlyAlertOnce(true)
                         .setAutoCancel(true)
                         .build();
@@ -389,6 +407,7 @@ public class MusicService extends Service {
                 .setVisibility(VISIBILITY_PUBLIC)
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(true)
+                .setSound(null)
                 .build();
     }
 
@@ -410,6 +429,7 @@ public class MusicService extends Service {
                 .setVisibility(VISIBILITY_PUBLIC)
                 .setAutoCancel(false)
                 .setOnlyAlertOnce(true)
+                .setSound(null)
                 .build();
     }
 

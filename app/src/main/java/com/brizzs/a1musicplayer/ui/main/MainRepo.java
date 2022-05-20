@@ -1,9 +1,12 @@
 package com.brizzs.a1musicplayer.ui.main;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
@@ -13,6 +16,8 @@ import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -54,44 +59,46 @@ public class MainRepo {
     }
 
     @SuppressLint("Range")
-    public LiveData<List<Songs>> getSongs() {
+    public MutableLiveData<List<Songs>> getSongs() {
 
-        Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-        String sortRecently = MediaStore.Audio.Media.DATE_ADDED + ">" + (System.currentTimeMillis() / 1000);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
+            String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+            String sortRecently = MediaStore.Audio.Media.DATE_ADDED + ">" + (System.currentTimeMillis() / 1000);
 
-        Cursor cursor = context.getContentResolver().query(uri[0], null, selection, null, sortRecently);
+            Cursor cursor = context.getContentResolver().query(uri[0], null, selection, null, sortRecently);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-                artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                date = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED));
-                duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+                    artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                    data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+                    date = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED));
+                    duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+                    album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                    id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 
-                key = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_KEY));
+                    key = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_KEY));
 
-                Songs songs = new Songs();
-                if (data.endsWith(".mp3")) {
-                    songs.setArtist(artist);
-                    songs.setName(title);
-                    Uri uriImage = ContentUris.withAppendedId(Common.alb_Uri, Long.parseLong(id));
-                    songs.setImage(String.valueOf(uriImage));
-                    songs.setData(data);
-                    songs.setDate(date);
-                    songs.setDuration(duration);
-                    songs.setAlbum(album);
-                    songs.setAlbumKey(key);
-                    list.add(songs);
+                    Songs songs = new Songs();
+                    if (data.endsWith(".mp3")) {
+                        songs.setArtist(artist);
+                        songs.setName(title);
+                        Uri uriImage = ContentUris.withAppendedId(Common.alb_Uri, Long.parseLong(id));
+                        songs.setImage(String.valueOf(uriImage));
+                        songs.setData(data);
+                        songs.setDate(date);
+                        songs.setDuration(duration);
+                        songs.setAlbum(album);
+                        songs.setAlbumKey(id);
+                        list.add(songs);
 
-                    liveData.postValue(list);
-                }
-            } while (cursor.moveToNext());
+                        liveData.setValue(list);
+                    }
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
-        cursor.close();
 
         return liveData;
     }
@@ -152,7 +159,7 @@ public class MainRepo {
         protected Void doInBackground(Album... albums) {
             try {
                 dao.insert(albums[0]);
-            } catch (SQLiteConstraintException e) {
+            } catch (Exception e) {
                 Log.i("doInBackground: ", e.toString());
             }
             return null;
@@ -217,7 +224,7 @@ public class MainRepo {
         protected Void doInBackground(Artist... artists) {
             try {
                 dao.Insert(artists[0]);
-            } catch (SQLiteConstraintException e) {
+            } catch (Exception e) {
                 Log.i("doInBackground: ", e.toString());
             }
             return null;

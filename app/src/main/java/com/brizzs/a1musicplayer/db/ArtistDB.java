@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.brizzs.a1musicplayer.dao.ArtistDao;
 import com.brizzs.a1musicplayer.model.Artist;
 
-@Database(entities = {Artist.class}, version = 1)
+@Database(entities = {Artist.class}, version = 1, exportSchema = false)
 public abstract class ArtistDB extends RoomDatabase {
 
     public static ArtistDB instance;

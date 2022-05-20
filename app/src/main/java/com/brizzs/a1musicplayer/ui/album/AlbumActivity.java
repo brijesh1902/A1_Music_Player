@@ -86,16 +86,15 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(null);
 
         viewModel.getAlbumSongsLiveData(currentAlbum.getId()).observe(this, songs -> {
             list = songs;
             adapter = new SongsAdapter( this, list, recently);
+
             recyclerView.setAdapter(adapter);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Collections.sort(list, Comparator.comparing(Songs::getName));
-            }
-
+            Collections.sort(list, (s1, s2) -> s2.getName().compareTo(s1.getName()));
         });
 
 

@@ -13,11 +13,6 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.utils.App;
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.appopen.AppOpenAd;
 
 import java.util.Date;
 
@@ -27,8 +22,8 @@ public class AppOpenManager implements LifecycleObserver, Application.ActivityLi
     // testing
 //    private static final String AD_UNIT_ID = "ca-app-pub-3940256099942544/3419835294";
     private static final String AD_UNIT_ID = String.valueOf(R.string.BANNER_ID);
-    private AppOpenAd appOpenAd = null;
-    private AppOpenAd.AppOpenAdLoadCallback loadCallback;
+//    private AppOpenAd appOpenAd = null;
+//    private AppOpenAd.AppOpenAdLoadCallback loadCallback;
     private final App myApplication;
     private Activity currentActivity;
     private long loadTime = 0;
@@ -43,13 +38,13 @@ public class AppOpenManager implements LifecycleObserver, Application.ActivityLi
     /** LifecycleObserver methods */
     @OnLifecycleEvent(ON_START)
     public void onStart() {
-        showAdIfAvailable();
+//        showAdIfAvailable();
         Log.d(LOG_TAG, "onStart");
     }
 
     public void fetchAd() {
         // Have unused ad, no need to fetch another.
-        if (isAdAvailable()) {
+        /*if (isAdAvailable()) {
             return;
         }
 
@@ -75,14 +70,12 @@ public class AppOpenManager implements LifecycleObserver, Application.ActivityLi
         return new AdRequest.Builder().build();
     }
 
-    /** Utility method to check if ad was loaded more than n hours ago. */
     private boolean wasLoadTimeLessThanNHoursAgo(long numHours) {
         long dateDifference = (new Date()).getTime() - this.loadTime;
         long numMilliSecondsPerHour = 3600000;
         return (dateDifference < (numMilliSecondsPerHour * numHours));
     }
 
-    /** Utility method that checks if ad exists and can be shown. */
     public boolean isAdAvailable() {
         return appOpenAd != null && wasLoadTimeLessThanNHoursAgo(4);
     }
@@ -123,7 +116,7 @@ public class AppOpenManager implements LifecycleObserver, Application.ActivityLi
         } else {
             Log.d(LOG_TAG, "Can not show ad.");
             fetchAd();
-        }
+        }*/
     }
 
     @Override

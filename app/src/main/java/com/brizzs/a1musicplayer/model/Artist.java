@@ -3,6 +3,7 @@ package com.brizzs.a1musicplayer.model;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -16,6 +17,7 @@ public class Artist {
 
     private String songName, artist, image;
 
+    @Ignore
     public Artist(){}
 
     public Artist(@NonNull String id, String songName, String artist, String image) {

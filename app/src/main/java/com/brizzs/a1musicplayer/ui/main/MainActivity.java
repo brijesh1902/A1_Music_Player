@@ -7,11 +7,12 @@ import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.isServiceRunning;
+import static com.brizzs.a1musicplayer.utils.Common.isUpdated;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
+import static com.brizzs.a1musicplayer.utils.Common.sendNotification;
 import static com.brizzs.a1musicplayer.utils.Common.value;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -23,11 +24,18 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -42,6 +50,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.brizzs.a1musicplayer.BuildConfig;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.adapters.SongsAdapter;
 import com.brizzs.a1musicplayer.databinding.ActivityMainBinding;
@@ -50,6 +59,7 @@ import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.service.MusicService;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
 import com.brizzs.a1musicplayer.ui.artist.ArtistFragment;
+import com.brizzs.a1musicplayer.ui.mini.SplashActivity;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
 import com.brizzs.a1musicplayer.ui.playlist.PlaylistFragment;
 import com.brizzs.a1musicplayer.ui.recently.RecentlyFragment;
@@ -57,12 +67,8 @@ import com.brizzs.a1musicplayer.ui.album.AlbumFragment;
 import com.brizzs.a1musicplayer.ui.settings.Settings;
 import com.brizzs.a1musicplayer.utils.PermissionsHandling;
 import com.brizzs.a1musicplayer.utils.TinyDB;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
+import org.jsoup.Jsoup;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -73,7 +79,8 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements OnSongAdapterCallback {
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
-    private static final String TAG = "MAIN";
+    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+    private static final String TAG = "MainActivity";
     private static Bundle mBundleRecyclerViewState;
     SongsAdapter adapter;
     List<Songs> list = new ArrayList<>();
@@ -88,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     ArtistFragment artistFragment;
     PlaylistFragment playlistFragment;
     Animation animation;
+    String newVersion, currentVersion = BuildConfig.VERSION_NAME;
+    String appPackageName = BuildConfig.APPLICATION_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         setContentView(binding.getRoot());
 
         checkPermissions();
+
+        new GetVersionCode().execute();
 
         tinyDB = new TinyDB(getApplicationContext());
         preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
@@ -208,7 +219,8 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         });
 
         viewModel.getLiveData().observe(MainActivity.this, songs -> {
-            list = songs;
+//            if (songs != null)
+                list = songs;
         });
 
     }
@@ -235,31 +247,39 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         }
     }
 
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                readFile();
+            } else {
+                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     private void checkPermissions() {
 
-        Dexter.withContext(this).withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.READ_PHONE_STATE).withListener(new MultiplePermissionsListener() {
-            @Override
-            public void onPermissionsChecked(MultiplePermissionsReport report) {
-                if (report.areAllPermissionsGranted()) {
-                    mainFragments = new RecentlyFragment();
-                    fragmentManager.beginTransaction().add(R.id.container, mainFragments).commit();
-                    binding.recentlyChip.setChipBackgroundColorResource(R.color.lg_grey);
-                } else {
-                    checkPermissions();
-                }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
 
-                if (report.isAnyPermissionPermanentlyDenied()) {
-                    checkPermissions();
-                }
-            }
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+            readFile();
+        }
 
-            @Override
-            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-                permissionToken.continuePermissionRequest();
-            }
-        }).onSameThread().check();
+    }
 
+    private void readFile() {
+        mainFragments = new RecentlyFragment();
+        fragmentManager.beginTransaction().add(R.id.container, mainFragments).commit();
+        binding.recentlyChip.setChipBackgroundColorResource(R.color.lg_grey);
     }
 
     private void searchSongs(String s) {
@@ -274,14 +294,109 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
             adapter = new SongsAdapter(this, songslist, recently);
             binding.rvSongs.setAdapter(adapter);
         } else {
-            Toast.makeText(getApplicationContext(), "Searched data not found.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Searched song not found.", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        System.exit(0);
+        finishAffinity();
+    }
+
+    private void openUpdateView() {
+        android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.view_update, null);
+        alertDialogBuilder.setView(view);
+        AlertDialog dialog = alertDialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+
+        TextView update = view.findViewById(R.id.update);
+        TextView later = view.findViewById(R.id.later);
+
+        update.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            dialog.dismiss();
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+            } catch (Exception e) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+            }
+            System.exit(0);
+        });
+
+        later.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            dialog.dismiss();
+        });
+    }
+
+
+
+    private class GetVersionCode extends AsyncTask<Void, String, String> {
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                newVersion = Jsoup.connect("https://play.google.com/store/apps/details?id=" + appPackageName
+                                + "&hl=en")
+                        .timeout(3000)
+                        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                        .referrer("http://www.google.com")
+                        .get()
+                        .select(".hAyfc .htlgb")
+                        .get(7)
+                        .ownText();
+            } catch (Exception e) {
+                Log.e("doInBackground: ", e.getMessage());
+            }
+
+            return newVersion;
+        }
+
+        @Override
+        protected void onPostExecute(String onlineVersion) {
+            super.onPostExecute(onlineVersion);
+            Log.e( "onPostExecute: ", currentVersion+"----"+onlineVersion+"---"+appPackageName);
+            if (onlineVersion != null && !onlineVersion.isEmpty()) {
+                if (checkForUpdate(currentVersion, onlineVersion) && !isUpdated) {
+                    openUpdateView();
+                    sendNotification(getApplicationContext());
+                    isUpdated = true;
+                }
+            }
+        }
+    }
+
+    public static boolean checkForUpdate(String existingVersion, String newVersion) {
+
+        if (existingVersion.isEmpty() || newVersion.isEmpty()) {
+            return false;
+        } else {
+            existingVersion = existingVersion.replaceAll("\\.", "");
+            newVersion = newVersion.replaceAll("\\.", "");
+
+            int existingVersionLength = existingVersion.length();
+            int newVersionLength = newVersion.length();
+
+            StringBuilder versionBuilder = new StringBuilder();
+            if (newVersionLength > existingVersionLength) {
+                versionBuilder.append(existingVersion);
+                for (int i = existingVersionLength; i < newVersionLength; i++) {
+                    versionBuilder.append("0");
+                }
+                existingVersion = versionBuilder.toString();
+            } else if (existingVersionLength > newVersionLength) {
+                versionBuilder.append(newVersion);
+                for (int i = newVersionLength; i < existingVersionLength; i++) {
+                    versionBuilder.append("0");
+                }
+                newVersion = versionBuilder.toString();
+            }
+        }
+        return Integer.parseInt(newVersion) > Integer.parseInt(existingVersion);
     }
 
     @Override
@@ -305,4 +420,6 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     public void AlbumCallback(int adapterPosition, List<Album> data, ImageView image, TextView name, TextView singer) {
 
     }
+
+
 }

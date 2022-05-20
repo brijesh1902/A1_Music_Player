@@ -4,9 +4,11 @@ import static com.brizzs.a1musicplayer.utils.Common.appInstalledorNot;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
@@ -14,15 +16,11 @@ import android.widget.Toast;
 import com.brizzs.a1musicplayer.BuildConfig;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.databinding.ActivitySettingsBinding;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 public class Settings extends AppCompatActivity {
 
     ActivitySettingsBinding binding;
-    String email = "palbrijesh59@gmail.com", linkedin = "https://www.linkedin.com/in/brijesh-pal-212956202/";
+    String appName = "A1 Music Player", email = "palbrijesh59@gmail.com", linkedin = "https://www.linkedin.com/in/brijesh-pal-212956202/";
     Animation animation;
 
     @Override
@@ -37,8 +35,10 @@ public class Settings extends AppCompatActivity {
 
         final String appPackageName = getApplicationContext().getPackageName();
 
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.adView.loadAd(adRequest);
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        binding.adView.loadAd(adRequest);
+
+        Log.e("onCreate: ", appName);
 
         binding.back.setOnClickListener(v -> {
             v.startAnimation(animation);
@@ -51,7 +51,8 @@ public class Settings extends AppCompatActivity {
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             sendIntent.putExtra(Intent.EXTRA_TEXT, "Hey... I would like to invite you to "+
-                     R.string.app_name+". It's really awesome platform for offline music.\n\nJoin in now with this link: https://play.google.com/store/apps/details?id=" + appPackageName);
+                     appName+". It's really awesome platform for offline music." +
+                    "\nJoin in now with this link: https://play.google.com/store/apps/details?id=" + appPackageName);
             sendIntent.setType("text/plain");
             startActivity(sendIntent);
         });

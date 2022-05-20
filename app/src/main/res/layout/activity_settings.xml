@@ -236,16 +236,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView2">
 
-        <com.google.android.gms.ads.AdView
-            android:visibility="gone"
-            android:id="@+id/adView"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:padding="8dp"
-            ads:adSize="@string/BANNER"
-            ads:adUnitId="@string/BANNER_ID" />
+<!--        <com.google.android.gms.ads.AdView-->
+<!--            android:visibility="gone"-->
+<!--            android:id="@+id/adView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:padding="8dp"-->
+<!--            ads:adSize="@string/BANNER"-->
+<!--            ads:adUnitId="@string/BANNER_ID" />-->
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView

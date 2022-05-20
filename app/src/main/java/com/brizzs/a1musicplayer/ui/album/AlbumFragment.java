@@ -16,12 +16,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.adapters.SongsAdapter;
 import com.brizzs.a1musicplayer.databinding.FragmentAlbumBinding;
 import com.brizzs.a1musicplayer.model.Album;
@@ -45,6 +49,8 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
     SongsAdapter adapter;
     List<Album> list = new ArrayList<>();
     MainViewModel viewModel;
+    Animation animation;
+    int currentScrollPosition = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,10 +59,12 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
         view = binding.getRoot();
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_item);
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
         binding.rvSongs.setHasFixedSize(true);
         binding.rvSongs.setLayoutManager(layoutManager);
+        binding.rvSongs.setItemAnimator(null);
 
         viewModel.getAlbumLiveData().observe(getViewLifecycleOwner(), albums -> {
             list = albums;
@@ -70,6 +78,24 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
 
         });
 
+        binding.rvSongs.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                Log.e("onScrolled: ", dy+"---");
+                currentScrollPosition += dy;
+                if( currentScrollPosition > 0 ) {
+                    binding.top.setVisibility(View.VISIBLE);
+                } else binding.top.setVisibility(View.GONE);
+            }
+        });
+
+        binding.top.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            currentScrollPosition = 0;
+            binding.rvSongs.smoothScrollToPosition(0);
+        });
 
         return view;
     }
@@ -90,6 +116,10 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
             Parcelable state = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
             binding.rvSongs.getLayoutManager().onRestoreInstanceState(state);
         }
+
+        if( currentScrollPosition > 0 ) {
+            binding.top.setVisibility(View.VISIBLE);
+        } else binding.top.setVisibility(View.GONE);
     }
 
     @Override

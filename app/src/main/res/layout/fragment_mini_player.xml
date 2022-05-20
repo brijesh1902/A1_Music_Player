@@ -88,19 +88,19 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:id="@+id/prev"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/ic_skip_previous_24"
-                        android:layout_margin="8dp"
-                        />
-
-                    <ImageView
                         android:id="@+id/replay"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_margin="8dp"
                         android:src="@drawable/ic_replay_10_24"
+                        />
+
+                    <ImageView
+                        android:id="@+id/prev"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:background="@drawable/ic_skip_previous_24"
+                        android:layout_margin="8dp"
                         />
 
                     <ImageView
@@ -114,6 +114,14 @@
                         />
 
                     <ImageView
+                        android:id="@+id/next"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:background="@drawable/ic_skip_next_24"
+                        android:layout_margin="8dp"
+                        />
+
+                    <ImageView
                         android:id="@+id/forward"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
@@ -121,27 +129,20 @@
                         android:src="@drawable/ic_forward_10_24"
                         />
 
-                    <ImageView
-                        android:id="@+id/next"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/ic_skip_next_24"
-                        android:layout_margin="8dp"
-                        />
                 </LinearLayout>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            ads:adSize="@string/BANNER"
-            android:padding="8dp"
-            ads:adUnitId="@string/BANNER_ID" />
+<!--        <com.google.android.gms.ads.AdView-->
+<!--            android:id="@+id/adView"-->
+<!--            android:visibility="gone"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            ads:adSize="@string/BANNER"-->
+<!--            android:padding="8dp"-->
+<!--            ads:adUnitId="@string/BANNER_ID" />-->
 
     </com.google.android.material.card.MaterialCardView>
 

@@ -14,6 +14,7 @@ import static com.brizzs.a1musicplayer.utils.Common.value;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -55,6 +57,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 
 public class PlayActivity extends AppCompatActivity implements ActionPlaying, ServiceConnection, OnSongAdapterCallback {
 
@@ -178,6 +181,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
         binding.rvPlaylist.setHasFixedSize(true);
         binding.rvPlaylist.setLayoutManager(layoutManager);
+        binding.rvPlaylist.setItemAnimator(null);
 
         binding.playlist.setOnClickListener(v -> {
             v.startAnimation(animation);
@@ -221,7 +225,19 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             }
         });
 
+        binding.loop.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            if (musicService.isLoop()){
+                musicService.setLoop(false);
+                binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_blue_24);
+            } else {
+                musicService.setLoop(true);
+                binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_24);
+            }
+        });
+
     }
+
 
     @Override
     public void Callback(int adapterPosition, List<Songs> data, ImageView image, TextView name, TextView singer) {
@@ -262,7 +278,9 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         super.onResume();
         Intent intent = new Intent(this, MusicService.class);
         bindService(intent, this, BIND_AUTO_CREATE);
-        if (musicService != null) musicService.onCompleted();
+        if (musicService != null) {
+            musicService.onCompleted();
+        }
     }
 
     private void start_service() {
@@ -295,6 +313,12 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
                    currentTime = createTime(musicService.getCurrentPosition());
                    binding.startTime.setText(currentTime);
                    handler.postDelayed(this, delay);
+
+                 /*  if (musicService.isLoop()) {
+                       binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_24);
+                   } else {
+                       binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_blue_24);
+                   }*/
                }
             }
         }, delay);
@@ -316,29 +340,11 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         };
         updateseek.start();
 
+        binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_blue_24);
         binding.pName.setSelected(true);
         binding.pArtist.setSelected(true);
 
     }
-
-    /*private void setSongGradient() {
-        byte[] img = getImage(songslist.get(position).getData());
-        Bitmap bitmap = BitmapFactory.decodeByteArray(img, 0, img.length);
-        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(@Nullable Palette palette) {
-                Palette.Swatch swatch = palette.getDominantSwatch();
-                if (swatch != null) {
-                    binding.gradient.setBackgroundResource(R.drawable.bg_gradient);
-                    GradientDrawable gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
-                            new int[]{swatch.getRgb(), 0x00000000});
-                    binding.gradient.setBackground(gradientDrawable);
-                    binding.pName.setTextColor(Color.WHITE);
-                    binding.pArtist.setTextColor(Color.DKGRAY);
-                }
-            }
-        });
-    }*/
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -379,7 +385,9 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     @Override
     public void nextClicked() {
         if (musicService != null) {
+//            if (musicService.isLoop()) musicService.setLoop(false);
             musicService.stop();
+            musicService.showNotification(R.drawable.ic_pause_24);
             musicService.release();
 
             if (songslist.size() > 0)
@@ -402,11 +410,14 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         if (musicService != null) {
             if (musicService.getCurrentPosition() >= 10000) {
                 musicService.stop();
+                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
                 musicService.create(position);
                 musicService.start();
             } else {
+//                if (musicService.isLoop()) musicService.setLoop(false);
                 musicService.stop();
+                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
 
                 if (songslist.size() > 0)

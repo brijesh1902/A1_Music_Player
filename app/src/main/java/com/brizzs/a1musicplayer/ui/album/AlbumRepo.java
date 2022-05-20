@@ -62,7 +62,7 @@ public class AlbumRepo {
                        songs.setDate(date);
                        songs.setDuration(duration);
                        songs.setAlbum(album);
-                       songs.setAlbumKey(key);
+                       songs.setAlbumKey(id);
 
                        list.add(songs);
                    }

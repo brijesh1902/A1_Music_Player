@@ -1,20 +1,31 @@
 package com.brizzs.a1musicplayer.utils;
 
+import static androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
-import static com.brizzs.a1musicplayer.utils.Common.artist;
-import static com.brizzs.a1musicplayer.utils.Common.name;
+import static com.brizzs.a1musicplayer.utils.App.CHANNEL;
+import static com.brizzs.a1musicplayer.utils.App.NEXT;
+import static com.brizzs.a1musicplayer.utils.App.PLAY;
+import static com.brizzs.a1musicplayer.utils.App.PREVIOUS;
 
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.PorterDuff;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.view.MotionEvent;
-import android.view.View;
+import android.os.Build;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.model.Songs;
@@ -48,8 +59,8 @@ public class Common {
     public static final String MUSIC_NAME = "MUSIC_NAME";
     public static final String MUSIC_IMG = "MUSIC_IMG";
 
-    public static final String MUSIC_PLAY = "MUSIC_PLAY";
-    public static final String MUSIC_PAUSE = "MUSIC_PAUSE";
+    public static final String FAVOURITES = "Favourites";
+    public static boolean isUpdated = false;
 
     public static String value="";
     public static  String name="";
@@ -113,5 +124,45 @@ public class Common {
             e.printStackTrace();
         }
         return app_installed;
+    }
+
+    static Notification notification = null;
+    public static final void sendNotification(Context applicationContext){
+        final String appPackageName = applicationContext.getPackageName();
+        PendingIntent pendingIntent = PendingIntent.getActivity(applicationContext, 5,
+                new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        String title = "UPDATE AVAILABLE";
+        String msg = "A new version of A1 Music Player is available on Playstore. Click to update now.";
+        Bitmap thumbnail = BitmapFactory.decodeResource(applicationContext.getResources(), R.drawable.googleplay);
+        NotificationManager manager = (NotificationManager) applicationContext.getSystemService(Service.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notification = new Notification.Builder(applicationContext, CHANNEL)
+                    .setSmallIcon(R.drawable.ic_notify)
+                    .setColor(ContextCompat.getColor(applicationContext, R.color.blue))
+                    .setLargeIcon(thumbnail)
+                    .setContentTitle(title)
+                    .setContentText(msg)
+                    .setContentIntent(pendingIntent)
+                    .setStyle(new Notification.BigTextStyle())
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setAutoCancel(false)
+                    .setOnlyAlertOnce(true)
+                    .build();
+        } else {
+            notification = new NotificationCompat.Builder(applicationContext, CHANNEL)
+                    .setSmallIcon(R.drawable.ic_notify)
+                    .setColor(ContextCompat.getColor(applicationContext, R.color.blue))
+                    .setLargeIcon(thumbnail)
+                    .setContentTitle(title)
+                    .setContentText(msg)
+                    .setContentIntent(pendingIntent)
+                    .setStyle(new NotificationCompat.BigTextStyle())
+                    .setVisibility(VISIBILITY_PUBLIC)
+                    .setAutoCancel(false)
+                    .setOnlyAlertOnce(true)
+                    .build();
+        }
+        manager.notify(1, notification);
     }
 }

@@ -10,7 +10,6 @@ import android.os.StrictMode;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.brizzs.a1musicplayer.ads.AppOpenManager;
-import com.google.android.gms.ads.MobileAds;
 
 public class App extends Application {
 
@@ -30,7 +29,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        MobileAds.initialize(this, initializationStatus -> {});
+//        MobileAds.initialize(this, initializationStatus -> {});
 //        appOpenManager = new AppOpenManager(this);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

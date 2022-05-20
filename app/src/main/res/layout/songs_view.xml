@@ -44,7 +44,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:transitionName="songname"
-            app:layout_constraintEnd_toStartOf="@+id/more"
+            app:layout_constraintEnd_toStartOf="@+id/m"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/img" />
 
@@ -65,32 +65,41 @@
             android:textStyle="normal"
             android:transitionName="singer"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/more"
+            app:layout_constraintEnd_toStartOf="@+id/m"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/song_name" />
 
         <LinearLayout
-            android:id="@+id/more"
+            android:id="@+id/m"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:orientation="vertical"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/img"
+            app:layout_constraintVertical_bias="0.0">
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:id="@+id/more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:padding="2dp"
+                android:clickable="true"
+                android:src="@drawable/ic_more"
                 android:visibility="gone"
-                android:src="@drawable/ic_more" />
+                android:focusable="true" />
 
             <ImageView
                 android:id="@+id/gif"
-                android:visibility="gone"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/giphy" />
+                android:layout_weight="1"
+                android:src="@drawable/giphy"
+                android:visibility="gone" />
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

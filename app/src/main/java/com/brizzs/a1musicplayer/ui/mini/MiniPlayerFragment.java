@@ -3,6 +3,7 @@ package com.brizzs.a1musicplayer.ui.mini;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.content.Context.MODE_PRIVATE;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
+import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_ARTIST;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_IMG;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_NAME;
@@ -44,7 +45,6 @@ import com.brizzs.a1musicplayer.service.ActionPlaying;
 import com.brizzs.a1musicplayer.service.MusicService;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.ads.AdRequest;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
     Intent ser_intent;
     Thread updateseek;
     View view;
-    int delay = 800;
+    int delay = 500;
     Animation animation;
     boolean isService;
     ArrayList<Songs> list = new ArrayList<>();
@@ -83,14 +83,14 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
 //            binding.adView.setVisibility(View.VISIBLE);
         }
 
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.adView.loadAd(adRequest);
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        binding.adView.loadAd(adRequest);
 
         binding.name.setSelected(true);
 
         binding.parent.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), PlayActivity.class);
-            intent.putExtra(current_list, (Serializable) musicService.list);
+            intent.putExtra(current_list, (Serializable) songslist);
             intent.putExtra("pos", musicService.position);
             intent.putExtra(duration, musicService.getCurrentPosition());
 
@@ -202,7 +202,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
         musicService = binder.getService();
         musicService.setCallback(this);
         
-        list = musicService.list;
+        list = songslist;
 
         setPlay();
         musicService.onCompleted();
@@ -238,6 +238,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
     public void nextClicked() {
         if (musicService != null) {
             musicService.stop();
+            musicService.showNotification(R.drawable.ic_pause_24);
             musicService.release();
 
             if (list.size() > 0)
@@ -257,11 +258,13 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
         if (musicService != null) {
             if (musicService.getCurrentPosition() >= 10000) {
                 musicService.stop();
+                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
                 musicService.create(position);
                 musicService.start();
             } else {
                 musicService.stop();
+                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
 
                 if (list.size() > 0)

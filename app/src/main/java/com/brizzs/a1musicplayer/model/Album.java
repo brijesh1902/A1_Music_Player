@@ -3,6 +3,7 @@ package com.brizzs.a1musicplayer.model;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -18,6 +19,7 @@ public class Album implements Serializable {
 
     private String album, artist, image;
 
+    @Ignore
     public Album(){}
 
     public Album(String id, String album, String artist, String image) {
