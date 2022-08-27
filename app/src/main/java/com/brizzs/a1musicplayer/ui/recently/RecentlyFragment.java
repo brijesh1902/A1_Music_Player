@@ -133,8 +133,7 @@ public class RecentlyFragment extends Fragment implements OnSongAdapterCallback 
         Pair<View, String> pair1 = Pair.create(image, "image");
         Pair<View, String> pair2 = Pair.create(name, "songname");
         Pair<View, String> pair3 = Pair.create(singer, "singer");
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(requireActivity(),  pair1, pair2, pair3);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(),  pair1, pair2, pair3);
 
         startActivity(intent, optionsCompat.toBundle());
     }

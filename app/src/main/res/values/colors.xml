@@ -14,4 +14,5 @@
     <color name="transparent">#00FFFFFF</color>
     <color name="green">#129304</color>
     <color name="transparent_lg_blue">#C649A0FD</color>
+    <color name="glassmorphism_color">#4DFFFFFF</color>
 </resources>

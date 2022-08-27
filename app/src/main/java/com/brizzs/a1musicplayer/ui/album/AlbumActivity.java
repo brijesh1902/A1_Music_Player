@@ -66,20 +66,13 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
 
         preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
         recyclerView = findViewById(R.id.rv_songs);
-        Toolbar toolbar = binding.toolbar;
-        toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
-        setSupportActionBar(toolbar);
-        CollapsingToolbarLayout toolBarLayout = binding.toolbarLayout;
-
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         currentAlbum = (Album) getIntent().getSerializableExtra(current_album);
 
-        toolBarLayout.setTitle(currentAlbum.getAlbum());
+        binding.albumName.setText(currentAlbum.getAlbum());
         Glide.with(getApplicationContext()).load(currentAlbum.getImage())
                 .placeholder(R.drawable.music_note_24).error(R.drawable.music_note_24)
-                .transition(DrawableTransitionOptions.withCrossFade()).into(binding.img);
+                .into(binding.img);
 
         viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
@@ -114,7 +107,6 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
         Intent intent = new Intent(getApplicationContext(), PlayActivity.class);
         intent.putExtra("pos", adapterPosition);
         intent.putExtra(duration, "0");
-//        intent.putExtra(actionName, album);
         intent.putExtra(current_list, (Serializable) data);
 
         Pair<View, String> pair1 = Pair.create(image, "image");

@@ -7,17 +7,19 @@
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/bg_circle.xml" value="0.1275" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/bg_gradient.xml" value="0.1275" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/bg_rounded.xml" value="0.1275" />
+        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/card_glassmorphism.xml" value="0.1785" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.12" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/ic_baseline_equalizer_24.xml" value="0.12" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/ic_baseline_loop_blue_24.xml" value="0.1205" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/ic_playlist_play_24.xml" value="0.1205" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/drawable/searchfield.xml" value="0.1275" />
-        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_album.xml" value="0.20416666666666666" />
+        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_album.xml" value="0.22" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_album_view.xml" value="0.1" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_play.xml" value="0.20416666666666666" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_settings.xml" value="0.20416666666666666" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/activity_splash.xml" value="0.20416666666666666" />
+        <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/content_scrolling.xml" value="0.20416666666666666" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/fragment_album.xml" value="0.20416666666666666" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/fragment_mini_player.xml" value="0.18611111111111112" />
         <entry key="..\:/LiveProjects/A1 Music Player/A1MusicPlayer/app/src/main/res/layout/fragment_playlist.xml" value="0.20416666666666666" />

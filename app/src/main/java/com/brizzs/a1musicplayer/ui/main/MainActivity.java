@@ -1,18 +1,15 @@
 package com.brizzs.a1musicplayer.ui.main;
 
-import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_FILE;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
 import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
-import static com.brizzs.a1musicplayer.utils.Common.isServiceRunning;
 import static com.brizzs.a1musicplayer.utils.Common.isUpdated;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
 import static com.brizzs.a1musicplayer.utils.Common.sendNotification;
 import static com.brizzs.a1musicplayer.utils.Common.value;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -24,10 +21,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -35,10 +29,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -56,16 +47,13 @@ import com.brizzs.a1musicplayer.adapters.SongsAdapter;
 import com.brizzs.a1musicplayer.databinding.ActivityMainBinding;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.model.Songs;
-import com.brizzs.a1musicplayer.service.MusicService;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
 import com.brizzs.a1musicplayer.ui.artist.ArtistFragment;
-import com.brizzs.a1musicplayer.ui.mini.SplashActivity;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
 import com.brizzs.a1musicplayer.ui.playlist.PlaylistFragment;
 import com.brizzs.a1musicplayer.ui.recently.RecentlyFragment;
 import com.brizzs.a1musicplayer.ui.album.AlbumFragment;
 import com.brizzs.a1musicplayer.ui.settings.Settings;
-import com.brizzs.a1musicplayer.utils.PermissionsHandling;
 import com.brizzs.a1musicplayer.utils.TinyDB;
 
 import org.jsoup.Jsoup;
@@ -219,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         });
 
         viewModel.getLiveData().observe(MainActivity.this, songs -> {
-//            if (songs != null)
                 list = songs;
         });
 
@@ -359,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         @Override
         protected void onPostExecute(String onlineVersion) {
             super.onPostExecute(onlineVersion);
-            Log.e( "onPostExecute: ", currentVersion+"----"+onlineVersion+"---"+appPackageName);
+//            Log.e( "onPostExecute: ", currentVersion+"----"+onlineVersion+"---"+appPackageName);
             if (onlineVersion != null && !onlineVersion.isEmpty()) {
                 if (checkForUpdate(currentVersion, onlineVersion) && !isUpdated) {
                     openUpdateView();
@@ -409,8 +396,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         Pair<View, String> pair1 = Pair.create(image, "image");
         Pair<View, String> pair2 = Pair.create(name, "songname");
         Pair<View, String> pair3 = Pair.create(singer, "singer");
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(MainActivity.this, pair1, pair2, pair3);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, pair1, pair2, pair3);
 
         startActivity(intent, optionsCompat.toBundle());
 

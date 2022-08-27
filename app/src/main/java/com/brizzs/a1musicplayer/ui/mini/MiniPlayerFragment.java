@@ -9,7 +9,6 @@ import static com.brizzs.a1musicplayer.utils.Common.MUSIC_IMG;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_NAME;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
 import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
-import static com.brizzs.a1musicplayer.utils.Common.TITLE;
 import static com.brizzs.a1musicplayer.utils.Common.artist;
 import static com.brizzs.a1musicplayer.utils.Common.createTime;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
@@ -28,10 +27,7 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -144,6 +140,10 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
             play_pauseClicked();
         });
 
+        if (musicService != null && !musicService.isplaying()) {
+            requireFragmentManager().beginTransaction().detach(this).commit();
+        }
+
     }
 
     private void start_service() {
@@ -238,7 +238,6 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
     public void nextClicked() {
         if (musicService != null) {
             musicService.stop();
-            musicService.showNotification(R.drawable.ic_pause_24);
             musicService.release();
 
             if (list.size() > 0)
@@ -258,13 +257,11 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
         if (musicService != null) {
             if (musicService.getCurrentPosition() >= 10000) {
                 musicService.stop();
-                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
                 musicService.create(position);
                 musicService.start();
             } else {
                 musicService.stop();
-                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
 
                 if (list.size() > 0)
@@ -282,8 +279,10 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
     @Override
     public void removeClicked() {
         try {
+            musicService.stop();
+            musicService.release();
             requireActivity().unbindService(this);
-            getFragmentManager().beginTransaction().detach(this).commit();
+            requireFragmentManager().beginTransaction().detach(this).commit();
         } catch (Exception e) {
             e.printStackTrace();
         }

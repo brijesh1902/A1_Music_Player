@@ -13,15 +13,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
 public class NotificationReceiver extends BroadcastReceiver {
 
+    String TAG = "RECEIVER", phoneNumber;
     Context c;
     boolean isCall = false;
-    View view;
 
     public void showToast(String s) {
         Toast.makeText(c, s, Toast.LENGTH_SHORT).show();

@@ -20,7 +20,8 @@ import com.brizzs.a1musicplayer.databinding.ActivitySettingsBinding;
 public class Settings extends AppCompatActivity {
 
     ActivitySettingsBinding binding;
-    String appName = "A1 Music Player", email = "palbrijesh59@gmail.com", linkedin = "https://www.linkedin.com/in/brijesh-pal-212956202/";
+    String appName = "A1 Music Player", email = "palbrijesh59@gmail.com",
+            linkedin = "https://www.linkedin.com/in/brijesh-pal-212956202/";
     Animation animation;
 
     @Override

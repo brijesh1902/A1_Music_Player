@@ -3,7 +3,6 @@ package com.brizzs.a1musicplayer.ui.playing;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_NAME;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
 import static com.brizzs.a1musicplayer.utils.Common.actionName;
-import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.createTime;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
@@ -14,7 +13,6 @@ import static com.brizzs.a1musicplayer.utils.Common.value;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +21,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -38,12 +35,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.brizzs.a1musicplayer.adapters.SongsAdapter;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
-import com.brizzs.a1musicplayer.ui.album.AlbumActivity;
 import com.brizzs.a1musicplayer.ui.main.MainActivity;
 import com.brizzs.a1musicplayer.utils.TinyDB;
 import com.brizzs.a1musicplayer.model.Songs;
@@ -306,7 +301,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-               if (musicService != null) {
+               if (musicService != null && musicService.isplaying()) {
                    endTime = createTime(musicService.getDuration());
                    binding.endTime.setText(endTime);
 
@@ -387,7 +382,6 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         if (musicService != null) {
 //            if (musicService.isLoop()) musicService.setLoop(false);
             musicService.stop();
-            musicService.showNotification(R.drawable.ic_pause_24);
             musicService.release();
 
             if (songslist.size() > 0)
@@ -410,14 +404,12 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         if (musicService != null) {
             if (musicService.getCurrentPosition() >= 10000) {
                 musicService.stop();
-                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
                 musicService.create(position);
                 musicService.start();
             } else {
 //                if (musicService.isLoop()) musicService.setLoop(false);
                 musicService.stop();
-                musicService.showNotification(R.drawable.ic_pause_24);
                 musicService.release();
 
                 if (songslist.size() > 0)
@@ -436,6 +428,8 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
     @Override
     public void removeClicked() {
+        musicService.stop();
+        musicService.release();
         unbindService(this);
         finish();
     }
@@ -458,20 +452,6 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
                     float xDiff = e2.getX() - e1.getX();
                     float yDiff = e2.getY() - e1.getY();
-
-                 /*   if (Math.abs(xDiff) > threshold && Math.abs(distanceX) > vel_threshold) {
-                        if (xDiff < 0) {
-                            nextClicked(); // right
-                            Toast.makeText(PlayActivity.this, "NEXT", Toast.LENGTH_SHORT).show();
-                        } else {
-                            previousClicked(); // left
-                            Toast.makeText(PlayActivity.this, "PREVIOUS", Toast.LENGTH_SHORT).show();
-                        }
-                        return true;
-                    }
-                  if (Math.abs(xDiff) > Math.abs(yDiff)) {
-
-                  }*/
 
                     if (e1.getX() > ver_divider) {
                         if (e1.getY() < e2.getY()) {

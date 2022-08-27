@@ -77,8 +77,7 @@ public class MusicService extends Service {
         tinyDB = new TinyDB(getApplicationContext());
         editor = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE).edit();
 
-        mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
 //        mediaSessionCompat.setCallback(this);
         mediaSessionCompat.setActive(true);
@@ -144,9 +143,12 @@ public class MusicService extends Service {
                 switch (action_name) {
                     case PLAY:
                         play_pause();
+                        if (isplaying()) showNotification(R.drawable.ic_play_24);
+                        else showNotification(R.drawable.ic_pause_24);
                         break;
                     case PAUSE:
                         pause();
+                        showNotification(R.drawable.ic_pause_24);
                         break;
                     case NEXT:
                         nextSong();
@@ -160,12 +162,7 @@ public class MusicService extends Service {
                 }
             }
 
-            new Handler().post(() -> {
-                if (mediaPlayer.getCurrentPosition() == mediaPlayer.getDuration()) {
-                    onCompleted();
-                }
-            });
-
+            new Handler().post(this::onCompleted);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,9 +197,7 @@ public class MusicService extends Service {
     }
 
     public void play_pause() {
-        if (actionPlaying != null) {
-            actionPlaying.play_pauseClicked();
-        }
+        if (actionPlaying != null) actionPlaying.play_pauseClicked();
     }
 
     public void setLoop(boolean b){
@@ -284,6 +279,9 @@ public class MusicService extends Service {
                 if (actionPlaying != null) {
                     actionPlaying.nextClicked();
                     onCompleted();
+                } else {
+                    mediaPlayer.stop();
+                    mediaPlayer.release();
                 }
             });
         }
@@ -347,10 +345,7 @@ public class MusicService extends Service {
                         .addAction(play_pause, PLAY, playPending)
                         .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                         .setContentIntent(pendingIntent)
-                        .setStyle(new Notification.MediaStyle()
-//                                .setShowActionsInCompactView(0)
-//                                .setMediaSession((MediaSession.Token) mediaSessionCompat.getSessionToken().getToken())
-                        )
+                        .setStyle(new Notification.MediaStyle())
                         .setVisibility(Notification.VISIBILITY_PUBLIC)
                         .setAutoCancel(false)
                         .setOnlyAlertOnce(true)
@@ -371,10 +366,7 @@ public class MusicService extends Service {
                         .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                         .addAction(R.drawable.ic_close_24, REMOVE, removePending)
                         .setContentIntent(pendingIntent)
-                        .setStyle(new Notification.MediaStyle()
-//                                .setShowActionsInCompactView(0)
-//                                .setMediaSession((MediaSession.Token) mediaSessionCompat.getSessionToken().getToken())
-                        )
+                        .setStyle(new Notification.MediaStyle())
                         .setVisibility(Notification.VISIBILITY_PUBLIC)
                         .setOnlyAlertOnce(true)
                         .setAutoCancel(true)
@@ -399,10 +391,7 @@ public class MusicService extends Service {
                 .addAction(play_pause, PLAY, playPending)
                 .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                 .addAction(R.drawable.ic_close_24, REMOVE, removePending)
-                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-//                        .setShowActionsInCompactView(0)
-//                        .setMediaSession(mediaSessionCompat.getSessionToken())
-                )
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle())
                 .setContentIntent(pendingIntent)
                 .setVisibility(VISIBILITY_PUBLIC)
                 .setOnlyAlertOnce(true)
@@ -421,10 +410,7 @@ public class MusicService extends Service {
                 .addAction(R.drawable.ic_skip_previous_24, PREVIOUS, prevPending)
                 .addAction(play_pause, PLAY, playPending)
                 .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
-                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-//                        .setShowActionsInCompactView(0)
-//                        .setMediaSession(mediaSessionCompat.getSessionToken())
-                )
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle())
                 .setContentIntent(pendingIntent)
                 .setVisibility(VISIBILITY_PUBLIC)
                 .setAutoCancel(false)
