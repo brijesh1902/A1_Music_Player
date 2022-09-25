@@ -1,11 +1,15 @@
 package com.brizzs.a1musicplayer.ui.recently;
 
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
+import static com.brizzs.a1musicplayer.utils.Common.ISGRIDVIEW;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.current_position;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -26,6 +30,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.adapters.SongsAdapter;
@@ -51,13 +56,13 @@ public class RecentlyFragment extends Fragment implements OnSongAdapterCallback 
     private final String KEY_RECYCLER_STATE = "recycler_state";
     private static Bundle mBundleRecyclerViewState;
     SongsAdapter adapter;
-    List<Songs> list = new ArrayList<>();
     MainViewModel viewModel;
     Animation animation;
     int currentScrollPosition = 0;
+    GridLayoutManager layoutManager;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentRecentlyBinding.inflate(getLayoutInflater());
         view = binding.getRoot();
@@ -66,17 +71,31 @@ public class RecentlyFragment extends Fragment implements OnSongAdapterCallback 
 
         animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_item);
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        return view;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mBundleRecyclerViewState = new Bundle();
+        Parcelable state = Objects.requireNonNull(binding.rvSongs.getLayoutManager()).onSaveInstanceState();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, state);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        layoutManager = new GridLayoutManager(getContext(), SPAN_COUNT);
         binding.rvSongs.setHasFixedSize(true);
         binding.rvSongs.setLayoutManager(layoutManager);
         binding.rvSongs.setItemAnimator(null);
 
         viewModel.getLiveData().observe(getViewLifecycleOwner(), songs -> {
-            list = songs;
-            adapter = new SongsAdapter( this, list, recently);
+            adapter = new SongsAdapter( this, songs, recently, layoutManager);
             binding.rvSongs.setAdapter(adapter);
 
-            Collections.sort(list, (s1, s2) -> s2.getDate().compareTo(s1.getDate()));
+            Collections.sort(songs, (s1, s2) -> s2.getDate().compareTo(s1.getDate()));
         });
 
         binding.rvSongs.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -97,30 +116,20 @@ public class RecentlyFragment extends Fragment implements OnSongAdapterCallback 
             binding.rvSongs.smoothScrollToPosition(0);
         });
 
-        return view;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mBundleRecyclerViewState = new Bundle();
-        Parcelable state = binding.rvSongs.getLayoutManager().onSaveInstanceState();
-        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, state);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         if (mBundleRecyclerViewState != null) {
             Parcelable state = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            binding.rvSongs.getLayoutManager().onRestoreInstanceState(state);
+            Objects.requireNonNull(binding.rvSongs.getLayoutManager()).onRestoreInstanceState(state);
         }
 
-        if( currentScrollPosition > 0 ) {
+        if(currentScrollPosition > 0 ) {
             binding.top.setVisibility(View.VISIBLE);
         } else binding.top.setVisibility(View.GONE);
 
+    }
+
+    public void refresh(){
+        requireActivity().onDetachedFromWindow();
+        Toast.makeText(requireContext(), ISGRIDVIEW+"", Toast.LENGTH_SHORT).show();
     }
 
     @Override

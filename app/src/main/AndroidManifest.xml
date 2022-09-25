@@ -66,6 +66,7 @@
             android:name=".service.MusicService"
             android:enabled="true"
             android:exported="false" />
+        <service android:name=".service.AppUpdateService" />
 
         <receiver
             android:name=".service.NotificationReceiver"

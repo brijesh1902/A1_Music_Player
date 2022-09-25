@@ -12,7 +12,7 @@ import com.brizzs.a1musicplayer.model.Songs;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-//@Database(entities = {Songs.class}, version = 1, exportSchema = false)
+@Database(entities = {Songs.class}, version = 1, exportSchema = false)
 public abstract class SongsDB extends RoomDatabase {
 
     public abstract SongsDao songsDao();

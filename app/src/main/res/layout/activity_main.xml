@@ -9,10 +9,10 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardView"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="28dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        app:cardCornerRadius="28dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,10 +30,10 @@
                 android:id="@+id/setting"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:padding="4dp"
                 android:layout_marginEnd="5dp"
-                app:chipBackgroundColor="@color/lg_black"
+                android:padding="4dp"
                 android:src="@drawable/ic_baseline_menu_24"
+                app:chipBackgroundColor="@color/lg_black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -74,76 +74,86 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.chip.ChipGroup
+    <RadioGroup
         android:id="@+id/chip_group_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_margin="8dp"
+        android:checkedButton="@id/recently_chip"
         android:nestedScrollingEnabled="true"
-        android:scrollbars="none"
-        app:selectionRequired="true"
-        app:chipSpacingHorizontal="12dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView"
-        app:singleSelection="true">
+        app:layout_constraintTop_toBottomOf="@+id/cardView">
 
-        <com.google.android.material.chip.Chip
+        <RadioButton
             android:id="@+id/recently_chip"
-            style="@style/ChipTextAppearance"
             android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
+            android:layout_height="32dp"
+            android:button="@null"
             android:text="Recently"
-            app:chipBackgroundColor="@color/lg_blue"
-            app:closeIconEnabled="false" />
+            android:background="@drawable/chip_selector"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            />
 
-        <com.google.android.material.chip.Chip
+        <RadioButton
             android:id="@+id/album_chip"
-            style="@style/ChipTextAppearance"
             android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="Album"
+            android:layout_height="32dp"
+            android:button="@null"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/chip_selector"
             android:textAlignment="center"
-            app:chipBackgroundColor="@color/lg_blue"
-            app:closeIconEnabled="false" />
+            android:textColor="@color/white"
+            android:text="Album" />
 
-        <com.google.android.material.chip.Chip
+        <RadioButton
             android:id="@+id/artist_chip"
-            style="@style/ChipTextAppearance"
             android:layout_width="100dp"
-            android:layout_height="wrap_content"
+            android:layout_height="32dp"
+            android:button="@null"
             android:text="Artist"
-            android:visibility="gone"
+            android:background="@drawable/chip_selector"
+            android:textColor="@color/white"
             android:textAlignment="center"
-            app:chipBackgroundColor="@color/lg_blue"
-            app:closeIconEnabled="false" />
+            android:visibility="gone" />
 
-        <com.google.android.material.chip.Chip
+        <RadioButton
             android:id="@+id/playlist_chip"
-            style="@style/ChipTextAppearance"
             android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="Playlist"
-            android:visibility="gone"
-            android:textAlignment="center"
-            app:chipBackgroundColor="@color/lg_blue"
-            app:closeIconEnabled="false" />
-    </com.google.android.material.chip.ChipGroup>
+            android:layout_height="32dp"
+            android:button="@null"
+            android:text="Favourites"
+            android:background="@drawable/chip_selector"
+            android:textColor="@color/white"
+            android:textAlignment="center" />
+
+    </RadioGroup>
+
+    <ImageView
+        android:id="@+id/btn_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/chip_group_main"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/chip_group_main"
+        app:layout_constraintTop_toTopOf="@+id/chip_group_main" />
 
     <Button
         android:id="@+id/permission"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:text="Allow permission"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/mini_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chip_group_main"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/chip_group_main" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_songs"
@@ -161,6 +171,7 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="4dp"
         app:layout_constraintBottom_toTopOf="@+id/mini_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

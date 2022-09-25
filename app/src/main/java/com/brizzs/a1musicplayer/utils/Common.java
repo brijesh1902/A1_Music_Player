@@ -38,6 +38,10 @@ public class Common {
     public static Uri alb_Uri = Uri.parse("content://media/external/audio/albumart");
     public static Uri art_Uri = Uri.parse("content://media/external/audio/artistart");
 
+    public static boolean ISGRIDVIEW = true;
+    public static final int SPAN_COUNT_ONE = 1;
+    public static int SPAN_COUNT = 2;
+
     public static Songs current_play = null;
     public static List<Songs> current_playlist = null;
 

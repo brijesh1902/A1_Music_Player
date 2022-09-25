@@ -101,6 +101,16 @@
                 android:src="@drawable/giphy"
                 android:visibility="gone" />
 
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animation_view"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:visibility="gone"
+                app:lottie_rawRes="@raw/waves" />
+
+
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

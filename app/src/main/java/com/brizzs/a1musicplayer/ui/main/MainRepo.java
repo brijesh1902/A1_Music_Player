@@ -61,6 +61,8 @@ public class MainRepo {
     @SuppressLint("Range")
     public MutableLiveData<List<Songs>> getSongs() {
 
+        list.clear();
+
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
             String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";

@@ -8,17 +8,22 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.model.PlayList;
+import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
+import com.brizzs.a1musicplayer.ui.playlist.PlaylistFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
+import java.util.List;
+
 public class PlayListAdapter extends ListAdapter<PlayList, PlayListAdapter.ViewHolder> {
 
-    public PlayListAdapter() {
+    public PlayListAdapter(OnSongAdapterCallback c, List<PlayList> songs, GridLayoutManager layoutManager) {
         super(diffCallback);
     }
 

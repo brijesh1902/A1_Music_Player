@@ -1,15 +1,21 @@
 package com.brizzs.a1musicplayer.ui.main;
 
+import static com.brizzs.a1musicplayer.utils.Common.ISGRIDVIEW;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_FILE;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
 import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT_ONE;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.isUpdated;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
 import static com.brizzs.a1musicplayer.utils.Common.sendNotification;
 import static com.brizzs.a1musicplayer.utils.Common.value;
+import static com.brizzs.a1musicplayer.utils.Const.CLICKANIMATION;
+import static com.brizzs.a1musicplayer.utils.Const.UPDATEVIEW;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -17,12 +23,18 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -30,6 +42,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -38,6 +51,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +69,14 @@ import com.brizzs.a1musicplayer.ui.recently.RecentlyFragment;
 import com.brizzs.a1musicplayer.ui.album.AlbumFragment;
 import com.brizzs.a1musicplayer.ui.settings.Settings;
 import com.brizzs.a1musicplayer.utils.TinyDB;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallState;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallStatus;
+import com.google.android.play.core.install.model.UpdateAvailability;
 
 import org.jsoup.Jsoup;
 
@@ -76,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     MainViewModel viewModel;
     TinyDB tinyDB;
     SharedPreferences preferences;
+    GridLayoutManager gridLayoutManager;
 
     FragmentManager fragmentManager;
     AlbumFragment albumFragment;
@@ -85,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     Animation animation;
     String newVersion, currentVersion = BuildConfig.VERSION_NAME;
     String appPackageName = BuildConfig.APPLICATION_ID;
+    private BroadcastReceiver mMessageReceiver = null;
+
+    private AppUpdateManager mAppUpdateManager;
+    private static final int RC_APP_UPDATE = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,16 +123,19 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
 
         checkPermissions();
 
-        new GetVersionCode().execute();
-
         tinyDB = new TinyDB(getApplicationContext());
         preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_item);
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
+        mainFragments = new RecentlyFragment();
+        albumFragment = new AlbumFragment();
+        playlistFragment = new PlaylistFragment();
+        artistFragment = new ArtistFragment();
+
+        gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT_ONE);
         binding.rvSongs.setHasFixedSize(true);
-        binding.rvSongs.setLayoutManager(layoutManager);
+        binding.rvSongs.setLayoutManager(gridLayoutManager);
 
         binding.searchbar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -146,66 +176,6 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
             overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
         });
 
-        binding.recentlyChip.setOnClickListener(v -> {
-            mainFragments = new RecentlyFragment();
-            fragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                            R.anim.slide_out,  // enter
-                            R.anim.fade_in,    // exit
-                            R.anim.fade_out,   // popEnter
-                            R.anim.slide_in    // popExit
-                    ).replace(R.id.container, mainFragments).commit();
-            binding.recentlyChip.setChipBackgroundColorResource(R.color.lg_grey);
-            binding.albumChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.artistChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.playlistChip.setChipBackgroundColorResource(R.color.lg_blue);
-        });
-
-        binding.albumChip.setOnClickListener(v -> {
-            albumFragment = new AlbumFragment();
-            fragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                            R.anim.slide_in,  // enter
-                            R.anim.fade_out,  // exit
-                            R.anim.fade_in,   // popEnter
-                            R.anim.slide_out  // popExit
-                    ).replace(R.id.container, albumFragment).commit();
-            binding.albumChip.setChipBackgroundColorResource(R.color.lg_grey);
-            binding.recentlyChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.artistChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.playlistChip.setChipBackgroundColorResource(R.color.lg_blue);
-        });
-
-        binding.artistChip.setOnClickListener(v -> {
-            artistFragment = new ArtistFragment();
-            fragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                            R.anim.slide_in,  // enter
-                            R.anim.fade_out,  // exit
-                            R.anim.fade_in,   // popEnter
-                            R.anim.slide_out  // popExit
-                    ).replace(R.id.container, artistFragment).commit();
-            binding.artistChip.setChipBackgroundColorResource(R.color.lg_grey);
-            binding.recentlyChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.albumChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.playlistChip.setChipBackgroundColorResource(R.color.lg_blue);
-        });
-
-        binding.playlistChip.setOnClickListener(v -> {
-            playlistFragment = new PlaylistFragment();
-            fragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                            R.anim.slide_in,  // enter
-                            R.anim.fade_out,  // exit
-                            R.anim.fade_in,   // popEnter
-                            R.anim.slide_out  // popExit
-                    ).replace(R.id.container, playlistFragment).commit();
-            binding.playlistChip.setChipBackgroundColorResource(R.color.lg_grey);
-            binding.recentlyChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.albumChip.setChipBackgroundColorResource(R.color.lg_blue);
-            binding.artistChip.setChipBackgroundColorResource(R.color.lg_blue);
-        });
-
         viewModel.getLiveData().observe(MainActivity.this, songs -> {
                 list = songs;
         });
@@ -225,6 +195,46 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     protected void onResume() {
         super.onResume();
 
+        binding.chipGroupMain.setOnCheckedChangeListener((group, checkedId) -> {
+            switch (checkedId) {
+                case R.id.recently_chip:
+                    checkedRecently();
+                    break;
+                case R.id.album_chip:
+                    checkedAlbum();
+                    break;
+                case R.id.playlist_chip:
+                    checkedPlaylist();
+                    break;
+                case R.id.artist_chip:
+                    checkedArtist();
+                    break;
+            }
+        });
+
+        binding.btnView.setOnClickListener(v -> {
+            CLICKANIMATION(v);
+            if (ISGRIDVIEW) {
+                binding.btnView.setBackgroundResource(R.drawable.ic_baseline_grid_view_24);
+                SPAN_COUNT = 1;
+                ISGRIDVIEW = false;
+            } else {
+                binding.btnView.setBackgroundResource(R.drawable.ic_baseline_view_list_24);
+                SPAN_COUNT = 2;
+                ISGRIDVIEW = true;
+            }
+            Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.container)).onResume();
+            binding.btnView.invalidate();
+        });
+
+       new Thread(() -> {
+           if (ISGRIDVIEW) {
+               binding.btnView.setBackgroundResource(R.drawable.ic_baseline_view_list_24);
+           } else {
+               binding.btnView.setBackgroundResource(R.drawable.ic_baseline_grid_view_24);
+           }
+       }).start();
+
         value = preferences.getString(MUSIC_FILE, null);
         SHOW_MINI_PLAYER = value != null;
 
@@ -232,12 +242,82 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
             Parcelable state = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
             Objects.requireNonNull(binding.rvSongs.getLayoutManager()).onRestoreInstanceState(state);
         }
+
+        mAppUpdateManager = AppUpdateManagerFactory.create(this);
+        mAppUpdateManager.registerListener(installStateUpdatedListener);
+        mAppUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE /*IMMEDIATE*/)) {
+                try {
+                    openUpdateView();
+                    mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE /*IMMEDIATE*/, (Activity) getApplicationContext(), RC_APP_UPDATE);
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
     }
 
+    InstallStateUpdatedListener installStateUpdatedListener = new InstallStateUpdatedListener() {
+        @Override
+        public void onStateUpdate(InstallState state) {
+            if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
 
+            } else if (state.installStatus() == InstallStatus.INSTALLED) {
+                if (mAppUpdateManager != null) {
+                    mAppUpdateManager.unregisterListener(installStateUpdatedListener);
+                }
+            } else {
+                Log.i(TAG, "InstallStateUpdatedListener: state: " + state.installStatus());
+            }
+        }
+    };
+
+
+    private void checkedRecently() {
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_out,  // enter
+                        R.anim.fade_in,    // exit
+                        R.anim.fade_out,   // popEnter
+                        R.anim.slide_in    // popExit
+                ).replace(R.id.container, mainFragments).commit();
+    }
+
+    private void checkedAlbum() {
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in,  // enter
+                        R.anim.fade_out,  // exit
+                        R.anim.fade_in,   // popEnter
+                        R.anim.slide_out  // popExit
+                ).replace(R.id.container, albumFragment).commit();
+    }
+
+    private void checkedPlaylist() {
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in,  // enter
+                        R.anim.fade_out,  // exit
+                        R.anim.fade_in,   // popEnter
+                        R.anim.slide_out  // popExit
+                ).replace(R.id.container, playlistFragment).commit();
+    }
+
+    private void checkedArtist() {
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in,  // enter
+                        R.anim.fade_out,  // exit
+                        R.anim.fade_in,   // popEnter
+                        R.anim.slide_out  // popExit
+                ).replace(R.id.container, artistFragment).commit();
+    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -266,7 +346,6 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     private void readFile() {
         mainFragments = new RecentlyFragment();
         fragmentManager.beginTransaction().add(R.id.container, mainFragments).commit();
-        binding.recentlyChip.setChipBackgroundColorResource(R.color.lg_grey);
     }
 
     private void searchSongs(String s) {
@@ -278,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
                     songslist.add(songs);
                 }
             }
-            adapter = new SongsAdapter(this, songslist, recently);
+            adapter = new SongsAdapter(this, songslist, recently, gridLayoutManager);
             binding.rvSongs.setAdapter(adapter);
         } else {
             Toast.makeText(getApplicationContext(), "Searched song not found.", Toast.LENGTH_SHORT).show();
@@ -318,72 +397,6 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
             v.startAnimation(animation);
             dialog.dismiss();
         });
-    }
-
-
-
-    private class GetVersionCode extends AsyncTask<Void, String, String> {
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            try {
-                newVersion = Jsoup.connect("https://play.google.com/store/apps/details?id=" + appPackageName
-                                + "&hl=en")
-                        .timeout(3000)
-                        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                        .referrer("http://www.google.com")
-                        .get()
-                        .select(".hAyfc .htlgb")
-                        .get(7)
-                        .ownText();
-            } catch (Exception e) {
-                Log.e("doInBackground: ", e.getMessage());
-            }
-
-            return newVersion;
-        }
-
-        @Override
-        protected void onPostExecute(String onlineVersion) {
-            super.onPostExecute(onlineVersion);
-//            Log.e( "onPostExecute: ", currentVersion+"----"+onlineVersion+"---"+appPackageName);
-            if (onlineVersion != null && !onlineVersion.isEmpty()) {
-                if (checkForUpdate(currentVersion, onlineVersion) && !isUpdated) {
-                    openUpdateView();
-                    sendNotification(getApplicationContext());
-                    isUpdated = true;
-                }
-            }
-        }
-    }
-
-    public static boolean checkForUpdate(String existingVersion, String newVersion) {
-
-        if (existingVersion.isEmpty() || newVersion.isEmpty()) {
-            return false;
-        } else {
-            existingVersion = existingVersion.replaceAll("\\.", "");
-            newVersion = newVersion.replaceAll("\\.", "");
-
-            int existingVersionLength = existingVersion.length();
-            int newVersionLength = newVersion.length();
-
-            StringBuilder versionBuilder = new StringBuilder();
-            if (newVersionLength > existingVersionLength) {
-                versionBuilder.append(existingVersion);
-                for (int i = existingVersionLength; i < newVersionLength; i++) {
-                    versionBuilder.append("0");
-                }
-                existingVersion = versionBuilder.toString();
-            } else if (existingVersionLength > newVersionLength) {
-                versionBuilder.append(newVersion);
-                for (int i = newVersionLength; i < existingVersionLength; i++) {
-                    versionBuilder.append("0");
-                }
-                newVersion = versionBuilder.toString();
-            }
-        }
-        return Integer.parseInt(newVersion) > Integer.parseInt(existingVersion);
     }
 
     @Override

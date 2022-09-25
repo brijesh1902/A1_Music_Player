@@ -2,6 +2,7 @@ package com.brizzs.a1musicplayer.ui.playing;
 
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_NAME;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.actionName;
 import static com.brizzs.a1musicplayer.utils.Common.createTime;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
@@ -10,6 +11,7 @@ import static com.brizzs.a1musicplayer.utils.Common.isServiceRunning;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
 import static com.brizzs.a1musicplayer.utils.Common.servicePosition;
 import static com.brizzs.a1musicplayer.utils.Common.value;
+import static com.brizzs.a1musicplayer.utils.Const.UPDATEVIEW;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
@@ -76,6 +78,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     Animation animation;
     swipeListener swipeListener;
     String actionBack;
+    GridLayoutManager layoutManager;
 
     @Override
     public void onBackPressed() {
@@ -173,7 +176,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         swipeListener = new swipeListener(binding.img);
         setPlayname();
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
+        layoutManager = new GridLayoutManager(getApplicationContext(), SPAN_COUNT);
         binding.rvPlaylist.setHasFixedSize(true);
         binding.rvPlaylist.setLayoutManager(layoutManager);
         binding.rvPlaylist.setItemAnimator(null);
@@ -184,7 +187,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
                 binding.playlist.setBackgroundResource(R.drawable.ic_baseline_white_playlist_play_24);
                 isplaylistOpen = true;
                 binding.rvPlaylist.setVisibility(View.VISIBLE);
-                adapter = new SongsAdapter(this, songslist, recently);
+                adapter = new SongsAdapter(this, songslist, recently, layoutManager);
                 binding.rvPlaylist.setAdapter(adapter);
             } else {
                 binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
@@ -198,7 +201,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             list.clear();
             list.addAll(songslist);
             Collections.shuffle(list);
-            adapter = new SongsAdapter(this, list, recently);
+            adapter = new SongsAdapter(this, list, recently, layoutManager);
             binding.rvPlaylist.setAdapter(adapter);
         });
 

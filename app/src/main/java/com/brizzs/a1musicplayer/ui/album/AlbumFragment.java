@@ -1,13 +1,16 @@
 package com.brizzs.a1musicplayer.ui.album;
 
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.current_album;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
+import static com.brizzs.a1musicplayer.utils.Const.UPDATEVIEW;
 
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
@@ -51,9 +54,10 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
     MainViewModel viewModel;
     Animation animation;
     int currentScrollPosition = 0;
+    GridLayoutManager layoutManager;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentAlbumBinding.inflate(getLayoutInflater(), container, false);
         view = binding.getRoot();
@@ -61,14 +65,29 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_item);
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        return view;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mBundleRecyclerViewState = new Bundle();
+        Parcelable state = binding.rvSongs.getLayoutManager().onSaveInstanceState();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, state);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        layoutManager = new GridLayoutManager(requireContext(), SPAN_COUNT);
         binding.rvSongs.setHasFixedSize(true);
         binding.rvSongs.setLayoutManager(layoutManager);
         binding.rvSongs.setItemAnimator(null);
 
         viewModel.getAlbumLiveData().observe(getViewLifecycleOwner(), albums -> {
             list = albums;
-            adapter = new SongsAdapter( this, null, album);
+            adapter = new SongsAdapter( this, null, album, layoutManager);
             adapter.setList(list);
             binding.rvSongs.setAdapter(adapter);
 
@@ -97,21 +116,6 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
             binding.rvSongs.smoothScrollToPosition(0);
         });
 
-        return view;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mBundleRecyclerViewState = new Bundle();
-        Parcelable state = binding.rvSongs.getLayoutManager().onSaveInstanceState();
-        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, state);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         if (mBundleRecyclerViewState != null) {
             Parcelable state = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
             binding.rvSongs.getLayoutManager().onRestoreInstanceState(state);
@@ -120,6 +124,7 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
         if( currentScrollPosition > 0 ) {
             binding.top.setVisibility(View.VISIBLE);
         } else binding.top.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -137,7 +142,7 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
         Pair<View, String> pair2 = Pair.create(name, "songname");
         Pair<View, String> pair3 = Pair.create(singer, "singer");
         ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(getActivity(),  pair1, pair2, pair3);
+                .makeSceneTransitionAnimation(requireActivity(),  pair1, pair2, pair3);
 
         startActivity(intent, optionsCompat.toBundle());
     }

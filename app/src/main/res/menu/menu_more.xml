@@ -13,13 +13,13 @@
         android:id="@+id/action_addToQueue"
         android:title="Add to queue"/>
 
-<!--    <item-->
-<!--        android:id="@+id/action_favourite"-->
-<!--        android:title="Add to Favourites"/>-->
+    <item
+        android:id="@+id/action_favourite"
+        android:title="Add to Favourites"/>
 
-<!--    <item-->
-<!--        android:id="@+id/action_playList"-->
-<!--        android:title="Add to Playlist"/>-->
+    <item
+        android:id="@+id/action_remove"
+        android:title="Remove from Favourites"/>
 
 
 </menu>

@@ -4,11 +4,13 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Intent;
 import android.os.Build;
 import android.os.StrictMode;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.brizzs.a1musicplayer.ads.AppOpenManager;
+import com.brizzs.a1musicplayer.service.AppUpdateService;
 
 public class App extends Application {
 
@@ -44,6 +46,9 @@ public class App extends Application {
 
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
+
+//        Intent intent = new Intent(getApplicationContext(), AppUpdateService.class);
+//        startService(intent);
 
 
     }

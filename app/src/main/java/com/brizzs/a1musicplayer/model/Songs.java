@@ -9,15 +9,17 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-//@Entity(tableName = "songs", indices = {@Index(value = {"id"}, unique = true)})
+@Entity(tableName = "songs")
 public class Songs implements Serializable {
 
-    private String name, artist, image, duration;
-    private String data, date, album, albumKey;
+    @NonNull
+    @PrimaryKey
+    private String name;
+    private String artist, image, duration, data, date, album, albumKey;
 
     public Songs(){}
 
-    public Songs( String name, String artist,
+    public Songs(@NonNull String name, String artist,
                  String image, String duration, String data, String date, String album, String albumKey) {
         this.name = name;
         this.artist = artist;

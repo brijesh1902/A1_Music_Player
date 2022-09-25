@@ -1,14 +1,17 @@
 package com.brizzs.a1musicplayer.ui.artist;
 
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.artist;
 import static com.brizzs.a1musicplayer.utils.Common.artists;
 import static com.brizzs.a1musicplayer.utils.Common.current_album;
+import static com.brizzs.a1musicplayer.utils.Const.UPDATEVIEW;
 
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
@@ -51,19 +54,19 @@ public class ArtistFragment extends Fragment implements OnSongAdapterCallback {
     MainViewModel viewModel;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentArtistBinding.inflate(getLayoutInflater());
         view = binding.getRoot();
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), SPAN_COUNT);
         binding.rvSongs.setHasFixedSize(true);
         binding.rvSongs.setLayoutManager(layoutManager);
 
         viewModel.getArtistLiveData().observe(getViewLifecycleOwner(), artist -> {
             list = artist;
-            adapter = new SongsAdapter( this, null, artists);
+            adapter = new SongsAdapter( this, null, artists, layoutManager);
             adapter.setArtistList(list);
             binding.rvSongs.setAdapter(adapter);
 
@@ -93,6 +96,9 @@ public class ArtistFragment extends Fragment implements OnSongAdapterCallback {
             Parcelable state = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
             binding.rvSongs.getLayoutManager().onRestoreInstanceState(state);
         }
+
+        UPDATEVIEW(binding.rvSongs, adapter);
+
     }
 
     @Override

@@ -3,10 +3,13 @@ package com.brizzs.a1musicplayer.adapters;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
 import static com.brizzs.a1musicplayer.utils.Common.FAVOURITES;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT_ONE;
 import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.artists;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
+import static com.brizzs.a1musicplayer.utils.Common.playlist;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
 
 import android.annotation.SuppressLint;
@@ -39,9 +42,11 @@ import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.dao.AlbumDao;
 import com.brizzs.a1musicplayer.dao.PlayListDao;
@@ -73,12 +78,24 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
     private  List<Artist> artistList;
     Animation animation;
     private SongsDao songsDao;
+    GridLayoutManager gridLayoutManager;
 
-    public SongsAdapter(OnSongAdapterCallback c, List<Songs> songs, String album) {
+    public SongsAdapter(OnSongAdapterCallback c, List<Songs> songs, String album, GridLayoutManager layoutManager) {
         super(DIFF_CALLBACK);
         this.context = c;
         this.data = songs;
         this.type = album;
+        gridLayoutManager = layoutManager;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        int span = gridLayoutManager.getSpanCount();
+        if (span == 1){
+            return SPAN_COUNT_ONE;
+        } else {
+            return 2;
+        }
     }
 
     private static final DiffUtil.ItemCallback<Songs> DIFF_CALLBACK = new DiffUtil.ItemCallback<Songs>() {
@@ -104,6 +121,8 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
             i = albums.size();
         else if (type.equals(artists))
             i = artistList.size();
+        else if (type.equals(playlist))
+            i = data.size();
         return i;
     }
 
@@ -111,17 +130,19 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         animation = AnimationUtils.loadAnimation(parent.getContext(), R.anim.anim_item);
-//        SongsDB db = SongsDB.getDatabase(parent.getContext());
-//        songsDao = db.songsDao();
+        SongsDB db = SongsDB.getDatabase(parent.getContext());
+        songsDao = db.songsDao();
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.songs_view, parent, false);
+        View view;
+        if (viewType == 2) view = layoutInflater.inflate(R.layout.songs_view, parent, false);
+        else view = layoutInflater.inflate(R.layout.view_songs_list, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int pos) {
 
-        if (type.equals(recently)) {
+        if (type.equals(recently) || type.equals(playlist)) {
            recentlyView(pos, holder);
         } else if (type.equals(album)) {
             albumsView(pos, holder);
@@ -141,13 +162,13 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
         holder.singer.setText(options.getArtist());
 
         if (songslist.size() != 0  && songslist.get(position).getName().equals(options.getName())) {
-            Glide.with(holder.gif.getContext()).load(R.drawable.giphy).into(holder.gif);
-            holder.gif.setVisibility(View.VISIBLE);
+//            Glide.with(holder.gif.getContext()).load(R.drawable.giphy).into(holder.gif);
+            holder.animationView.setVisibility(View.VISIBLE);
             new Handler(Looper.myLooper()).post(() -> {
                 notifyItemRangeChanged(pos, data.size());
             });
         } else {
-            holder.gif.setVisibility(View.GONE);
+            holder.animationView.setVisibility(View.GONE);
         }
 
         holder.more.setOnClickListener(v -> {
@@ -155,6 +176,15 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
             v.getParent().requestDisallowInterceptTouchEvent(true);
             PopupMenu popupMenu = new PopupMenu(holder.more.getContext(), v, Gravity.RIGHT);
             popupMenu.inflate(R.menu.menu_more);
+
+            if (type.equals(playlist)) {
+                popupMenu.getMenu().findItem(R.id.action_favourite).setVisible(false);
+                popupMenu.getMenu().findItem(R.id.action_remove).setVisible(true);
+            } else {
+                popupMenu.getMenu().findItem(R.id.action_favourite).setVisible(true);
+                popupMenu.getMenu().findItem(R.id.action_remove).setVisible(false);
+            }
+
             popupMenu.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case R.id.action_play:
@@ -169,13 +199,13 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
                         addToQueue(pos);
                         break;
 
-//                    case R.id.action_favourite:
-//                        addFavourites(options);
-//                        break;
-//
-//                    case R.id.action_playList:
-//                        addToPlaylist(pos, holder);
-//                        break;
+                    case R.id.action_favourite:
+                        addFavourites(options);
+                        break;
+
+                    case R.id.action_remove:
+                        removeFavourites(options);
+                        break;
                 }
 
                 return false;
@@ -218,12 +248,12 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
 
 
     private void addFavourites(Songs options) {
-        options.setAlbumKey(FAVOURITES);
+//        options.setAlbumKey(FAVOURITES);
         new InsertTask(songsDao).execute(options);
     }
 
-    private void addToPlaylist(int pos, ViewHolder holder) {
-
+    private void removeFavourites(Songs options) {
+        new DeleteTask(songsDao).execute(options);
     }
 
     private void setRingtone(Songs songs) {
@@ -268,6 +298,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
         TextView singer, name;
         ImageView image, gif, more;
         ConstraintLayout parent;
+        LottieAnimationView animationView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -278,10 +309,11 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
             more = itemView.findViewById(R.id.more);
             gif = itemView.findViewById(R.id.gif);
             parent = itemView.findViewById(R.id.parent);
+            animationView = itemView.findViewById(R.id.animation_view);
 
             itemView.setOnClickListener(v -> {
                 try {
-                    if (type.equals(recently))
+                    if (type.equals(recently) || type.equals(playlist))
                         context.Callback(getAdapterPosition(), data, image, name, singer);
                     else
                     if (type.equals(album))
@@ -303,9 +335,36 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
         @Override
         protected Void doInBackground(Songs... playLists) {
             try {
+                SongsDB.databaseWriteExecutor.execute(() -> {
+                    dao.insert(playLists[0]);
+                });
+                Log.e("doInBackground0: ", playLists[0].getName());
 //                dao.insert(playLists[0]);
+//                Log.e("doInBackground1: ", playLists[0].getName());
             } catch (Exception e) {
-                Log.i("doInBackground: ", e.toString());
+                Log.i("doInBackground2: ", e.toString());
+            }
+            return null;
+        }
+    }
+
+    private static class DeleteTask extends AsyncTask<Songs, Void, Void> {
+        private final SongsDao dao;
+        public DeleteTask(SongsDao a) {
+            this.dao = a;
+        }
+
+        @Override
+        protected Void doInBackground(Songs... playLists) {
+            try {
+                SongsDB.databaseWriteExecutor.execute(() -> {
+                    dao.delete(playLists[0]);
+                });
+                Log.e("doInBackground0: ", String.valueOf(playLists[0].getName()));
+//                dao.insert(playLists[0]);
+//                Log.e("doInBackground1: ", playLists[0].getName());
+            } catch (Exception e) {
+                Log.i("doInBackground2: ", e.toString());
             }
             return null;
         }

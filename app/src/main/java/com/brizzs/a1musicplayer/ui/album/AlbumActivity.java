@@ -3,6 +3,7 @@ package com.brizzs.a1musicplayer.ui.album;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_FILE;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
 import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.actionName;
 import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.current_album;
@@ -76,14 +77,14 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
 
         viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(null);
 
         viewModel.getAlbumSongsLiveData(currentAlbum.getId()).observe(this, songs -> {
             list = songs;
-            adapter = new SongsAdapter( this, list, recently);
+            adapter = new SongsAdapter( this, list, recently, layoutManager);
 
             recyclerView.setAdapter(adapter);
 
@@ -99,6 +100,8 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
 
         value = preferences.getString(MUSIC_FILE, null);
         SHOW_MINI_PLAYER = value != null;
+
+        recyclerView.post(() -> adapter.notifyDataSetChanged());
 
     }
 
