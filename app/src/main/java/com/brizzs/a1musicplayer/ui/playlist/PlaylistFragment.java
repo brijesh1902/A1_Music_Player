@@ -15,6 +15,7 @@ import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Parcelable;
@@ -36,6 +37,7 @@ import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
+import com.brizzs.a1musicplayer.utils.ItemMoveCallback;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -88,9 +90,13 @@ public class PlaylistFragment extends Fragment implements OnSongAdapterCallback 
         binding.rvSongs.setLayoutManager(layoutManager);
         binding.rvSongs.setItemAnimator(null);
 
+        ItemTouchHelper.Callback callback = new ItemMoveCallback(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(binding.rvSongs);
+
         viewModel.getPlaylists().observe(getViewLifecycleOwner(), songs -> {
             if (songs.size() > 0) {
-                Log.e("onResume: ", String.valueOf(songs.get(0).getName()));
+//                Log.e("onResume: ", String.valueOf(songs.get(0).getName()));
                 adapter = new SongsAdapter(this, songs, playlist, layoutManager);
                 binding.rvSongs.setAdapter(adapter);
                 binding.rvSongs.post(() -> adapter.notifyDataSetChanged());

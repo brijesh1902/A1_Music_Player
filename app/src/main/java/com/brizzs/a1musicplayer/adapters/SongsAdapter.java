@@ -16,6 +16,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -62,14 +63,16 @@ import com.brizzs.a1musicplayer.ui.main.MainActivity;
 import com.brizzs.a1musicplayer.ui.main.MainRepo;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
 import com.brizzs.a1musicplayer.ui.playlist.PlaylistViewModel;
+import com.brizzs.a1musicplayer.utils.ItemMoveCallback;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
+public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> implements ItemMoveCallback.ItemHelperInterface {
 
     private final OnSongAdapterCallback context;
     private final List<Songs> data;
@@ -291,6 +294,30 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
 
     public void setArtistList(List<Artist> list) {
         this.artistList = list;
+    }
+
+    @Override
+    public void onRowMoved(int fromPosition, int toPosition) {
+        if (type.equals(playlist)) {
+            if (fromPosition < toPosition)
+                for (int i = fromPosition; i < toPosition; i++)
+                    Collections.swap(data, i, i + 1);
+            else
+                for (int i = fromPosition; i > toPosition; i--)
+                    Collections.swap(data, i, i - 1);
+
+            notifyItemMoved(fromPosition, toPosition);
+        }
+    }
+
+    @Override
+    public void onRowSelected(ViewHolder viewHolder) {
+        viewHolder.parent.setBackgroundColor(Color.GRAY);
+    }
+
+    @Override
+    public void onRowClear(ViewHolder viewHolder) {
+        viewHolder.parent.setBackgroundColor(Color.WHITE);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
