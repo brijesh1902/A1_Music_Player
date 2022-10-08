@@ -90,13 +90,8 @@ public class PlaylistFragment extends Fragment implements OnSongAdapterCallback 
         binding.rvSongs.setLayoutManager(layoutManager);
         binding.rvSongs.setItemAnimator(null);
 
-        ItemTouchHelper.Callback callback = new ItemMoveCallback(adapter);
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(binding.rvSongs);
-
         viewModel.getPlaylists().observe(getViewLifecycleOwner(), songs -> {
             if (songs.size() > 0) {
-//                Log.e("onResume: ", String.valueOf(songs.get(0).getName()));
                 adapter = new SongsAdapter(this, songs, playlist, layoutManager);
                 binding.rvSongs.setAdapter(adapter);
                 binding.rvSongs.post(() -> adapter.notifyDataSetChanged());
@@ -109,7 +104,7 @@ public class PlaylistFragment extends Fragment implements OnSongAdapterCallback 
 
         binding.rvSongs.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
                 currentScrollPosition += dy;

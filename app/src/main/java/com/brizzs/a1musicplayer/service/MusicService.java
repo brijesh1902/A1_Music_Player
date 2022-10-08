@@ -42,8 +42,11 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.brizzs.a1musicplayer.dao.SongsDao;
+import com.brizzs.a1musicplayer.db.SongsDB;
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
@@ -295,22 +298,22 @@ public class MusicService extends Service {
     public void showNotification(int play_pause) {
 
         Intent prevIntent = new Intent(this, NotificationReceiver.class).setAction(PREVIOUS);
-        prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_MUTABLE);
 
         Intent playIntent = new Intent(this, NotificationReceiver.class).setAction(PLAY);
-        playPending = PendingIntent.getBroadcast(this, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        playPending = PendingIntent.getBroadcast(this, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_MUTABLE);
 
         Intent nextIntent = new Intent(this, NotificationReceiver.class).setAction(NEXT);
-        nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_MUTABLE);
 
         Intent removeIntent = new Intent(this, NotificationReceiver.class).setAction(REMOVE);
-        removePending = PendingIntent.getBroadcast(this, 0, removeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        removePending = PendingIntent.getBroadcast(this, 0, removeIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_MUTABLE);
 
         /*Intent replayIntent = new Intent(this, NotificationReceiver.class).setAction(REPLAY_10);
-        replayPending = PendingIntent.getBroadcast(this, 0, replayIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        replayPending = PendingIntent.getBroadcast(this, 0, replayIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_MUTABLE);
 
         Intent forwardIntent = new Intent(this, NotificationReceiver.class).setAction(FORWARD_10);
-        forwardPending = PendingIntent.getBroadcast(this, 0, forwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        forwardPending = PendingIntent.getBroadcast(this, 0, forwardIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_MUTABLE);
        */
         String picture = songslist.get(position).getImage();
         Bitmap thumbnail = null;
@@ -327,7 +330,7 @@ public class MusicService extends Service {
         intent.putExtra(current_list, (Serializable) songslist);
         intent.putExtra("pos", position);
         intent.putExtra(duration, getCurrentPosition());
-        pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_MUTABLE);
 
         String name = songslist.get(position).getName();
         String artist = songslist.get(position).getArtist();

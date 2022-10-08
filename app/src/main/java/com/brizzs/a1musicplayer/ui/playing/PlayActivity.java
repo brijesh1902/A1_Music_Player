@@ -13,10 +13,12 @@ import static com.brizzs.a1musicplayer.utils.Common.servicePosition;
 import static com.brizzs.a1musicplayer.utils.Common.value;
 import static com.brizzs.a1musicplayer.utils.Const.UPDATEVIEW;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ComponentName;
@@ -25,6 +27,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -37,8 +40,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.brizzs.a1musicplayer.adapters.SongsAdapter;
+import com.brizzs.a1musicplayer.dao.SongsDao;
+import com.brizzs.a1musicplayer.db.SongsDB;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
 import com.brizzs.a1musicplayer.ui.main.MainActivity;
@@ -74,11 +80,12 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     AudioManager audioManager;
     SharedPreferences preferences;
     SongsAdapter adapter;
-    boolean isplaylistOpen = false, isService = false ;
+    boolean isplaylistOpen = false, isService = false, isFavourite = false ;
     Animation animation;
     swipeListener swipeListener;
     String actionBack;
     GridLayoutManager layoutManager;
+    private SongsDao songsDao;
 
     @Override
     public void onBackPressed() {
@@ -117,6 +124,9 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         actionBack = getIntent().getStringExtra(actionName);
         songslist = (ArrayList<Songs>) getIntent().getSerializableExtra(current_list);
 
+        SongsDB db = SongsDB.getDatabase(getApplicationContext());
+        songsDao = db.songsDao();
+
         if (actionBack != null) Log.e("onCreate: ", actionBack);
 
         audioManager = (AudioManager) getApplicationContext().getSystemService(AUDIO_SERVICE);
@@ -136,19 +146,6 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         next.setOnClickListener(v -> {
             v.startAnimation(animation);
             nextClicked();
-        });
-
-        binding.back.setOnClickListener(v -> {
-            v.startAnimation(animation);
-            if (isplaylistOpen) {
-                isplaylistOpen = false;
-                binding.rvPlaylist.setVisibility(View.GONE);
-                binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
-            } else {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                supportFinishAfterTransition();
-            }
         });
 
         seekBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
@@ -181,58 +178,6 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         binding.rvPlaylist.setLayoutManager(layoutManager);
         binding.rvPlaylist.setItemAnimator(null);
 
-        binding.playlist.setOnClickListener(v -> {
-            v.startAnimation(animation);
-            if (!isplaylistOpen) {
-                binding.playlist.setBackgroundResource(R.drawable.ic_baseline_white_playlist_play_24);
-                isplaylistOpen = true;
-                binding.rvPlaylist.setVisibility(View.VISIBLE);
-                adapter = new SongsAdapter(this, songslist, recently, layoutManager);
-                binding.rvPlaylist.setAdapter(adapter);
-            } else {
-                binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
-                isplaylistOpen = false;
-                binding.rvPlaylist.setVisibility(View.GONE);
-            }
-        });
-
-        binding.shuffle.setOnClickListener(v -> {
-            v.startAnimation(animation);
-            list.clear();
-            list.addAll(songslist);
-            Collections.shuffle(list);
-            adapter = new SongsAdapter(this, list, recently, layoutManager);
-            binding.rvPlaylist.setAdapter(adapter);
-        });
-
-        binding.forward.setOnClickListener(v -> {
-            v.startAnimation(animation);
-            int p = musicService.getCurrentPosition() + 10000;
-            if (p <= musicService.getDuration()) {
-                currentTime = createTime(p);
-                musicService.seekTo(p);
-            }
-        });
-
-        binding.replay.setOnClickListener(v -> {
-            v.startAnimation(animation);
-            int p = musicService.getCurrentPosition() - 10000;
-            if (p >= 0) {
-                currentTime = createTime(p);
-                musicService.seekTo(p);
-            }
-        });
-
-        binding.loop.setOnClickListener(v -> {
-            v.startAnimation(animation);
-            if (musicService.isLoop()){
-                musicService.setLoop(false);
-                binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_blue_24);
-            } else {
-                musicService.setLoop(true);
-                binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_24);
-            }
-        });
 
     }
 
@@ -279,6 +224,135 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         if (musicService != null) {
             musicService.onCompleted();
         }
+
+        checkFavourites();
+
+        binding.back.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            if (isplaylistOpen) {
+                isplaylistOpen = false;
+                binding.rvPlaylist.setVisibility(View.GONE);
+                binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
+            } else {
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                supportFinishAfterTransition();
+            }
+        });
+
+        binding.playlist.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            if (!isplaylistOpen) {
+                binding.playlist.setBackgroundResource(R.drawable.ic_baseline_white_playlist_play_24);
+                isplaylistOpen = true;
+                binding.rvPlaylist.setVisibility(View.VISIBLE);
+                adapter = new SongsAdapter(this, songslist, recently, layoutManager);
+                binding.rvPlaylist.setAdapter(adapter);
+            } else {
+                binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
+                isplaylistOpen = false;
+                binding.rvPlaylist.setVisibility(View.GONE);
+            }
+        });
+
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                Collections.swap(songslist, viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                adapter.notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                binding.rvPlaylist.invalidate();
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG,
+                        ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
+            }
+        });
+        touchHelper.attachToRecyclerView(binding.rvPlaylist);
+
+        binding.shuffle.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            list.clear();
+            list.addAll(songslist);
+            Collections.shuffle(list);
+            adapter = new SongsAdapter(this, list, recently, layoutManager);
+            binding.rvPlaylist.setAdapter(adapter);
+        });
+
+        binding.forward.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            int p = musicService.getCurrentPosition() + 10000;
+            if (p <= musicService.getDuration()) {
+                currentTime = createTime(p);
+                musicService.seekTo(p);
+            }
+        });
+
+        binding.replay.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            int p = musicService.getCurrentPosition() - 10000;
+            if (p >= 0) {
+                currentTime = createTime(p);
+                musicService.seekTo(p);
+            }
+        });
+
+        binding.loop.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            if (musicService.isLoop()){
+                musicService.setLoop(false);
+                binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_blue_24);
+            } else {
+                musicService.setLoop(true);
+                binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_24);
+            }
+        });
+
+        binding.btnFavourite.setOnClickListener(v -> {
+            v.startAnimation(animation);
+            if (isFavourite){
+                new DeleteTask(songsDao).execute(songslist.get(position));
+                binding.btnFavourite.setImageResource(R.drawable.ic_like);
+                Toast.makeText(this, songslist.get(position).getName()+" removed from favourites.", Toast.LENGTH_SHORT).show();
+                isFavourite = false;
+            } else {
+                new InsertTask(songsDao).execute(songslist.get(position));
+                binding.btnFavourite.setImageResource(R.drawable.ic_like_color);
+                Toast.makeText(this, songslist.get(position).getName()+" added to favourites.", Toast.LENGTH_SHORT).show();
+                isFavourite = true;
+            }
+            binding.btnFavourite.invalidate();
+        });
+
+
+    }
+
+    private void checkFavourites() {
+        songsDao.getSongs().observe(this, songs -> {
+            if (songs.size() > 0) {
+                for (Songs s : songs) {
+                    if (s.getName().equals(songslist.get(position).getName())) {
+                        isFavourite = true;
+                        binding.btnFavourite.setImageResource(R.drawable.ic_like_color);
+                    } else {
+                        isFavourite = false;
+                        binding.btnFavourite.setImageResource(R.drawable.ic_like);
+                    }
+                }
+            } else {
+                isFavourite = false;
+                binding.btnFavourite.setImageResource(R.drawable.ic_like);
+            }
+            binding.btnFavourite.invalidate();
+            Log.e( "observe: ", isFavourite+"");
+        });
     }
 
     private void start_service() {
@@ -400,6 +474,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             musicService.showNotification(R.drawable.ic_play_24);
             setPlayname();
         }
+        checkFavourites();
     }
 
     @Override
@@ -427,6 +502,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             musicService.showNotification(R.drawable.ic_play_24);
             setPlayname();
         }
+        checkFavourites();
     }
 
     @Override
@@ -495,6 +571,46 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             return gestureDetector.onTouchEvent(event);
+        }
+    }
+
+    private static class InsertTask extends AsyncTask<Songs, Void, Void> {
+        private final SongsDao dao;
+        public InsertTask(SongsDao a) {
+            this.dao = a;
+        }
+
+        @Override
+        protected Void doInBackground(Songs... playLists) {
+            try {
+                SongsDB.databaseWriteExecutor.execute(() -> {
+                    dao.insert(playLists[0]);
+                });
+                Log.e("doInBackground0: ", playLists[0].getName());
+            } catch (Exception e) {
+                Log.i("doInBackground2: ", e.toString());
+            }
+            return null;
+        }
+    }
+
+    private static class DeleteTask extends AsyncTask<Songs, Void, Void> {
+        private final SongsDao dao;
+        public DeleteTask(SongsDao a) {
+            this.dao = a;
+        }
+
+        @Override
+        protected Void doInBackground(Songs... playLists) {
+            try {
+                SongsDB.databaseWriteExecutor.execute(() -> {
+                    dao.delete(playLists[0]);
+                });
+                Log.e("doInBackground0: ", String.valueOf(playLists[0].getName()));
+            } catch (Exception e) {
+                Log.i("doInBackground2: ", e.toString());
+            }
+            return null;
         }
     }
 

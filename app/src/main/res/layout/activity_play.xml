@@ -242,15 +242,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/equalizer"
+        android:id="@+id/btn_favourite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_margin="8dp"
         android:background="@drawable/bg_circle"
         android:backgroundTint="@color/white"
         android:padding="8dp"
-        android:visibility="gone"
-        android:src="@drawable/ic_baseline_equalizer_24"
+        android:src="@drawable/ic_like"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

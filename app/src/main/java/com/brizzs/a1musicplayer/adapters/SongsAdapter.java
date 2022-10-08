@@ -72,7 +72,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> implements ItemMoveCallback.ItemHelperInterface {
+public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
 
     private final OnSongAdapterCallback context;
     private final List<Songs> data;
@@ -296,7 +296,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> i
         this.artistList = list;
     }
 
-    @Override
+    /*@Override
     public void onRowMoved(int fromPosition, int toPosition) {
         if (type.equals(playlist)) {
             if (fromPosition < toPosition)
@@ -318,7 +318,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> i
     @Override
     public void onRowClear(ViewHolder viewHolder) {
         viewHolder.parent.setBackgroundColor(Color.WHITE);
-    }
+    }*/
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -366,8 +366,6 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> i
                     dao.insert(playLists[0]);
                 });
                 Log.e("doInBackground0: ", playLists[0].getName());
-//                dao.insert(playLists[0]);
-//                Log.e("doInBackground1: ", playLists[0].getName());
             } catch (Exception e) {
                 Log.i("doInBackground2: ", e.toString());
             }
@@ -388,8 +386,6 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> i
                     dao.delete(playLists[0]);
                 });
                 Log.e("doInBackground0: ", String.valueOf(playLists[0].getName()));
-//                dao.insert(playLists[0]);
-//                Log.e("doInBackground1: ", playLists[0].getName());
             } catch (Exception e) {
                 Log.i("doInBackground2: ", e.toString());
             }
