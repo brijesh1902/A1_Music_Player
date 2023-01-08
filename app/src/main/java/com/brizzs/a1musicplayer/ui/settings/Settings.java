@@ -1,14 +1,13 @@
 package com.brizzs.a1musicplayer.ui.settings;
 
-import static com.brizzs.a1musicplayer.utils.Common.appInstalledorNot;
+import static com.brizzs.a1musicplayer.utils.Common.appInstalledOrNot;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
@@ -24,6 +23,7 @@ public class Settings extends AppCompatActivity {
             linkedin = "https://www.linkedin.com/in/brijesh-pal-212956202/";
     Animation animation;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,8 +38,6 @@ public class Settings extends AppCompatActivity {
 
 //        AdRequest adRequest = new AdRequest.Builder().build();
 //        binding.adView.loadAd(adRequest);
-
-        Log.e("onCreate: ", appName);
 
         binding.back.setOnClickListener(v -> {
             v.startAnimation(animation);
@@ -75,7 +73,7 @@ public class Settings extends AppCompatActivity {
 
         binding.whatsapp.setOnClickListener(v -> {
             v.startAnimation(animation);
-            boolean installed = appInstalledorNot("com.whatsapp", getApplicationContext());
+            boolean installed = appInstalledOrNot("com.whatsapp", getApplicationContext());
             String num = "+917666898936";
             if (installed) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);

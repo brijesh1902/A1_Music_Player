@@ -1,38 +1,36 @@
 package com.brizzs.a1musicplayer.adapters;
 
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
-import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
-import static com.brizzs.a1musicplayer.utils.Common.FAVOURITES;
-import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
+import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songsList;
+import static com.brizzs.a1musicplayer.utils.Common.IMAGE;
 import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT_ONE;
 import static com.brizzs.a1musicplayer.utils.Common.album;
 import static com.brizzs.a1musicplayer.utils.Common.artists;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
+import static com.brizzs.a1musicplayer.utils.Common.image;
 import static com.brizzs.a1musicplayer.utils.Common.playlist;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_ARTIST;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_IMAGE;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_NAME;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -40,8 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
@@ -49,27 +45,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.brizzs.a1musicplayer.R;
-import com.brizzs.a1musicplayer.dao.AlbumDao;
-import com.brizzs.a1musicplayer.dao.PlayListDao;
 import com.brizzs.a1musicplayer.dao.SongsDao;
-import com.brizzs.a1musicplayer.db.PlayListDB;
 import com.brizzs.a1musicplayer.db.SongsDB;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.model.Artist;
-import com.brizzs.a1musicplayer.model.PlayList;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.ui.main.MainActivity;
-import com.brizzs.a1musicplayer.ui.main.MainRepo;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
-import com.brizzs.a1musicplayer.ui.playlist.PlaylistViewModel;
-import com.brizzs.a1musicplayer.utils.ItemMoveCallback;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
@@ -164,7 +151,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
         holder.name.setText(options.getName());
         holder.singer.setText(options.getArtist());
 
-        if (songslist.size() != 0  && songslist.get(position).getName().equals(options.getName())) {
+        if (songsList.size() != 0  && songsList.get(position).getName().equals(options.getName())) {
 //            Glide.with(holder.gif.getContext()).load(R.drawable.giphy).into(holder.gif);
             holder.animationView.setVisibility(View.VISIBLE);
             new Handler(Looper.myLooper()).post(() -> {
@@ -224,13 +211,13 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
 
     private void addToQueue(int pos) {
         final Songs options = data.get(pos);
-        songslist.add(options);
-        Log.e("addToQueue: ", position+"--"+songslist.size());
+        songsList.add(options);
+        Log.e("addToQueue: ", position+"--"+ songsList.size());
     }
 
     private void playNext(int pos) {
         final Songs options = data.get(pos);
-        songslist.add(position+1, options);
+        songsList.add(position+1, options);
     }
 
     private void playSong(int pos, ViewHolder holder) {
@@ -239,12 +226,11 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
         intent.putExtra("pos", pos);
         intent.putExtra(duration, "0");
 
-        Pair<View, String> pair1 = Pair.create(holder.image, "image");
-        Pair<View, String> pair2 = Pair.create(holder.name, "songname");
-        Pair<View, String> pair3 = Pair.create(holder.singer, "singer");
+        Pair<View, String> pair1 = Pair.create(holder.image, SONG_IMAGE);
+        Pair<View, String> pair2 = Pair.create(holder.name, SONG_NAME);
+        Pair<View, String> pair3 = Pair.create(holder.singer, SONG_ARTIST);
 
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                (Activity) holder.more.getContext(), pair1, pair2, pair3);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) holder.more.getContext(), pair1, pair2, pair3);
 
         ((Context) holder.more.getContext()).startActivity(intent, optionsCompat.toBundle());
     }
@@ -341,10 +327,10 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
             itemView.setOnClickListener(v -> {
                 try {
                     if (type.equals(recently) || type.equals(playlist))
-                        context.Callback(getAdapterPosition(), data, image, name, singer);
+                        context.Callback(getAbsoluteAdapterPosition(), data, image, name, singer);
                     else
                     if (type.equals(album))
-                        context.AlbumCallback(getAdapterPosition(), albums, image, name, singer);
+                        context.AlbumCallback(getAbsoluteAdapterPosition(), albums, image, name, singer);
                 } catch (Exception e) {
                     v.getContext().startActivity(new Intent(v.getContext(), MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 }

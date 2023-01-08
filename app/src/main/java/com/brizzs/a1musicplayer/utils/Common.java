@@ -2,11 +2,8 @@ package com.brizzs.a1musicplayer.utils;
 
 import static androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
-import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
-import static com.brizzs.a1musicplayer.utils.App.CHANNEL;
-import static com.brizzs.a1musicplayer.utils.App.NEXT;
-import static com.brizzs.a1musicplayer.utils.App.PLAY;
-import static com.brizzs.a1musicplayer.utils.App.PREVIOUS;
+import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songsList;
+import static com.brizzs.a1musicplayer.utils.MyApplication.CHANNEL;
 
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -56,6 +53,8 @@ public class Common {
     public static String album = "album";
     public static String artists = "artists";
     public static String playlist = "playlist";
+
+    public static final String APP_OPENED = "APP_OPENED";
 
     public static final String MUSIC_PLAYED = "MUSIC_FILE";
     public static final String MUSIC_FILE = "MUSIC_FILE";
@@ -107,16 +106,16 @@ public class Common {
 
     public static void setView(Context context, TextView title, TextView artist, ImageView image) {
 
-        Glide.with(context).load(songslist.get(position).getImage())
+        Glide.with(context).load(songsList.get(position).getImage())
                 .placeholder(R.drawable.music_note_24)
                 .error(R.drawable.music_note_24)
                 .into(image);
 
-        title.setText(songslist.get(position).getName());
-        artist.setText(songslist.get(position).getArtist());
+        title.setText(songsList.get(position).getName());
+        artist.setText(songsList.get(position).getArtist());
     }
 
-    public static boolean appInstalledorNot(String url, Context context) {
+    public static boolean appInstalledOrNot(String url, Context context) {
         PackageManager packageManager = context.getPackageManager();
 
         boolean app_installed;
@@ -131,11 +130,11 @@ public class Common {
     }
 
     static Notification notification = null;
-    public static final void sendNotification(Context applicationContext){
+    public static void sendNotification(Context applicationContext){
         final String appPackageName = applicationContext.getPackageName();
         PendingIntent pendingIntent = PendingIntent.getActivity(applicationContext, 5,
                 new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         String title = "UPDATE AVAILABLE";
         String msg = "A new version of A1 Music Player is available on Playstore. Click to update now.";
         Bitmap thumbnail = BitmapFactory.decodeResource(applicationContext.getResources(), R.drawable.googleplay);
@@ -143,7 +142,7 @@ public class Common {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notification = new Notification.Builder(applicationContext, CHANNEL)
                     .setSmallIcon(R.drawable.ic_notify)
-                    .setColor(ContextCompat.getColor(applicationContext, R.color.blue))
+                    .setColor(ContextCompat.getColor(applicationContext, R.color.primary))
                     .setLargeIcon(thumbnail)
                     .setContentTitle(title)
                     .setContentText(msg)
@@ -156,7 +155,7 @@ public class Common {
         } else {
             notification = new NotificationCompat.Builder(applicationContext, CHANNEL)
                     .setSmallIcon(R.drawable.ic_notify)
-                    .setColor(ContextCompat.getColor(applicationContext, R.color.blue))
+                    .setColor(ContextCompat.getColor(applicationContext, R.color.primary))
                     .setLargeIcon(thumbnail)
                     .setContentTitle(title)
                     .setContentText(msg)

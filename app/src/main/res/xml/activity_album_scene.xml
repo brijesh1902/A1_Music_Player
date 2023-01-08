@@ -37,13 +37,13 @@
             android:id="@+id/img"
             motion:layout_constraintEnd_toEndOf="parent"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             motion:layout_constraintHorizontal_bias="0.5"
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent" />
         <Constraint
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             motion:layout_constraintBottom_toBottomOf="@+id/img"
             motion:layout_constraintStart_toStartOf="@+id/img"
             android:id="@+id/album_name"

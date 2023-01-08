@@ -11,7 +11,9 @@ import static com.brizzs.a1musicplayer.utils.Common.isServiceRunning;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
 import static com.brizzs.a1musicplayer.utils.Common.servicePosition;
 import static com.brizzs.a1musicplayer.utils.Common.value;
-import static com.brizzs.a1musicplayer.utils.Const.UPDATEVIEW;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_ARTIST;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_IMAGE;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_NAME;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -72,15 +74,15 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     public static int position, delay = 500, maxVolume, volume;
     final Handler handler = new Handler();
     TinyDB tinyDB;
-    public static ArrayList<Songs> songslist = new ArrayList<>();
+    public static ArrayList<Songs> songsList = new ArrayList<>();
     ArrayList<Songs> list = new ArrayList<>();
-    Thread updateseek;
+    Thread updateSeek;
     ActivityPlayBinding binding;
     MusicService musicService;
     AudioManager audioManager;
     SharedPreferences preferences;
     SongsAdapter adapter;
-    boolean isplaylistOpen = false, isService = false, isFavourite = false ;
+    boolean isPlayListOpen = false, isService = false, isFavourite = false ;
     Animation animation;
     swipeListener swipeListener;
     String actionBack;
@@ -89,8 +91,8 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
     @Override
     public void onBackPressed() {
-        if (isplaylistOpen) {
-            isplaylistOpen = false;
+        if (isPlayListOpen) {
+            isPlayListOpen = false;
             binding.rvPlaylist.setVisibility(View.GONE);
             binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
         } else {
@@ -100,6 +102,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             supportFinishAfterTransition();
         }
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +125,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
         position = getIntent().getIntExtra("pos", 0);
         actionBack = getIntent().getStringExtra(actionName);
-        songslist = (ArrayList<Songs>) getIntent().getSerializableExtra(current_list);
+        songsList = (ArrayList<Songs>) getIntent().getSerializableExtra(current_list);
 
         SongsDB db = SongsDB.getDatabase(getApplicationContext());
         songsDao = db.songsDao();
@@ -191,11 +194,10 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        Pair<View, String> pair1 = Pair.create(image, "image");
-        Pair<View, String> pair2 = Pair.create(name, "songname");
-        Pair<View, String> pair3 = Pair.create(singer, "singer");
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(PlayActivity.this, pair1, pair2, pair3);
+        Pair<View, String> pair1 = Pair.create(image, SONG_IMAGE);
+        Pair<View, String> pair2 = Pair.create(name, SONG_NAME);
+        Pair<View, String> pair3 = Pair.create(singer, SONG_ARTIST);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(PlayActivity.this, pair1, pair2, pair3);
 
         startActivity(intent, optionsCompat.toBundle());
     }
@@ -210,7 +212,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         super.onStart();
         if (!isService) {
             start_service();
-        } else if (!songslist.get(position).getName().equals(preferences.getString(MUSIC_NAME, null))){
+        } else if (!songsList.get(position).getName().equals(preferences.getString(MUSIC_NAME, null))){
             start_service();
         }
 
@@ -229,8 +231,8 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
         binding.back.setOnClickListener(v -> {
             v.startAnimation(animation);
-            if (isplaylistOpen) {
-                isplaylistOpen = false;
+            if (isPlayListOpen) {
+                isPlayListOpen = false;
                 binding.rvPlaylist.setVisibility(View.GONE);
                 binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
             } else {
@@ -242,15 +244,15 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
         binding.playlist.setOnClickListener(v -> {
             v.startAnimation(animation);
-            if (!isplaylistOpen) {
+            if (!isPlayListOpen) {
                 binding.playlist.setBackgroundResource(R.drawable.ic_baseline_white_playlist_play_24);
-                isplaylistOpen = true;
+                isPlayListOpen = true;
                 binding.rvPlaylist.setVisibility(View.VISIBLE);
-                adapter = new SongsAdapter(this, songslist, recently, layoutManager);
+                adapter = new SongsAdapter(this, songsList, recently, layoutManager);
                 binding.rvPlaylist.setAdapter(adapter);
             } else {
                 binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
-                isplaylistOpen = false;
+                isPlayListOpen = false;
                 binding.rvPlaylist.setVisibility(View.GONE);
             }
         });
@@ -258,7 +260,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                Collections.swap(songslist, viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                Collections.swap(songsList, viewHolder.getAdapterPosition(), target.getAdapterPosition());
                 adapter.notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                 binding.rvPlaylist.invalidate();
                 return true;
@@ -280,7 +282,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         binding.shuffle.setOnClickListener(v -> {
             v.startAnimation(animation);
             list.clear();
-            list.addAll(songslist);
+            list.addAll(songsList);
             Collections.shuffle(list);
             adapter = new SongsAdapter(this, list, recently, layoutManager);
             binding.rvPlaylist.setAdapter(adapter);
@@ -318,14 +320,14 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         binding.btnFavourite.setOnClickListener(v -> {
             v.startAnimation(animation);
             if (isFavourite){
-                new DeleteTask(songsDao).execute(songslist.get(position));
+                new DeleteTask(songsDao).execute(songsList.get(position));
                 binding.btnFavourite.setImageResource(R.drawable.ic_like);
-                Toast.makeText(this, songslist.get(position).getName()+" removed from favourites.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, songsList.get(position).getName()+" removed from favourites.", Toast.LENGTH_SHORT).show();
                 isFavourite = false;
             } else {
-                new InsertTask(songsDao).execute(songslist.get(position));
+                new InsertTask(songsDao).execute(songsList.get(position));
                 binding.btnFavourite.setImageResource(R.drawable.ic_like_color);
-                Toast.makeText(this, songslist.get(position).getName()+" added to favourites.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, songsList.get(position).getName()+" added to favourites.", Toast.LENGTH_SHORT).show();
                 isFavourite = true;
             }
             binding.btnFavourite.invalidate();
@@ -338,7 +340,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         songsDao.getSongs().observe(this, songs -> {
             if (songs.size() > 0) {
                 for (Songs s : songs) {
-                    if (s.getName().equals(songslist.get(position).getName())) {
+                    if (s.getName().equals(songsList.get(position).getName())) {
                         isFavourite = true;
                         binding.btnFavourite.setImageResource(R.drawable.ic_like_color);
                     } else {
@@ -358,27 +360,27 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     private void start_service() {
         Intent intent = new Intent(this, MusicService.class);
         intent.putExtra(servicePosition, position);
-        intent.putExtra(current_list, (Serializable) songslist);
+        intent.putExtra(current_list, (Serializable) songsList);
         startService(intent);
     }
 
     private void setPlayname() {
 
 //        setView(getApplicationContext(), binding.pName, binding.pArtist, binding.img);
-        Glide.with(getApplicationContext()).load(songslist.get(position).getImage())
+        Glide.with(getApplicationContext()).load(songsList.get(position).getImage())
                 .placeholder(R.drawable.music_note_24)
                 .error(R.drawable.music_note_24)
                 .into(image);
 
-        binding.pName.setText(songslist.get(position).getName());
-        binding.pArtist.setText(songslist.get(position).getArtist());
+        binding.pName.setText(songsList.get(position).getName());
+        binding.pArtist.setText(songsList.get(position).getArtist());
 
         play.setImageResource(R.drawable.ic_play_24);
 
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-               if (musicService != null && musicService.isplaying()) {
+               if (musicService != null && musicService.isPlaying()) {
                    endTime = createTime(musicService.getDuration());
                    binding.endTime.setText(endTime);
 
@@ -395,7 +397,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             }
         }, delay);
 
-        updateseek = new Thread() {
+        updateSeek = new Thread() {
             @Override
             public void run() {
                 int cp = 0;
@@ -410,7 +412,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
                 }
             }
         };
-        updateseek.start();
+        updateSeek.start();
 
         binding.loop.setBackgroundResource(R.drawable.ic_baseline_loop_blue_24);
         binding.pName.setSelected(true);
@@ -427,9 +429,9 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         setPlayname();
         musicService.onCompleted();
         seekBar.setMax(musicService.getDuration());
-        if (musicService.isplaying()) binding.pPlay.setImageResource(R.drawable.ic_play_24);
+        if (musicService.isPlaying()) binding.pPlay.setImageResource(R.drawable.ic_play_24);
         else binding.pPlay.setImageResource(R.drawable.ic_pause_24);
-        musicService.showNotification(R.drawable.ic_play_24);
+        musicService.showNotification(R.drawable.ic_play_24, 1f);
 
     }
 
@@ -442,14 +444,14 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     @Override
     public void play_pauseClicked() {
         if (musicService != null) {
-            if (musicService.isplaying()) {
+            if (musicService.isPlaying()) {
                 play.setImageResource(R.drawable.ic_pause_24);
                 musicService.pause();
-                musicService.showNotification(R.drawable.ic_pause_24);
+                musicService.showNotification(R.drawable.ic_pause_24, 0f);
             } else {
                 play.setImageResource(R.drawable.ic_play_24);
                 musicService.start();
-                musicService.showNotification(R.drawable.ic_play_24);
+                musicService.showNotification(R.drawable.ic_play_24, 1f);
             }
         }
     }
@@ -461,8 +463,8 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             musicService.stop();
             musicService.release();
 
-            if (songslist.size() > 0)
-                if (position < songslist.size() - 1)
+            if (songsList.size() > 0)
+                if (position < songsList.size() - 1)
                     position++;
                 else
                     position = 0;
@@ -471,7 +473,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             musicService.start();
             seekBar.setProgress(musicService.getCurrentPosition());
             seekBar.setMax(musicService.getDuration());
-            musicService.showNotification(R.drawable.ic_play_24);
+            musicService.showNotification(R.drawable.ic_play_24, 1f);
             setPlayname();
         }
         checkFavourites();
@@ -490,16 +492,16 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
                 musicService.stop();
                 musicService.release();
 
-                if (songslist.size() > 0)
+                if (songsList.size() > 0)
                     if (position > 0) position--;
-                    else position = songslist.size() - 1;
+                    else position = songsList.size() - 1;
 
                 musicService.create(position);
                 musicService.start();
                 seekBar.setProgress(musicService.getCurrentPosition());
                 seekBar.setMax(musicService.getDuration());
             }
-            musicService.showNotification(R.drawable.ic_play_24);
+            musicService.showNotification(R.drawable.ic_play_24, 1f);
             setPlayname();
         }
         checkFavourites();

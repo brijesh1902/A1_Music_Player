@@ -77,6 +77,11 @@ import com.google.android.play.core.install.InstallStateUpdatedListener;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.review.model.ReviewErrorCode;
+import com.google.android.play.core.tasks.Task;
 
 import org.jsoup.Jsoup;
 
@@ -106,9 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     ArtistFragment artistFragment;
     PlaylistFragment playlistFragment;
     Animation animation;
-    String newVersion, currentVersion = BuildConfig.VERSION_NAME;
     String appPackageName = BuildConfig.APPLICATION_ID;
-    private BroadcastReceiver mMessageReceiver = null;
 
     private AppUpdateManager mAppUpdateManager;
     private static final int RC_APP_UPDATE = 11;
@@ -136,6 +139,9 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT_ONE);
         binding.rvSongs.setHasFixedSize(true);
         binding.rvSongs.setLayoutManager(gridLayoutManager);
+
+        int val = tinyDB.getTimesOpen();
+        tinyDB.setTimesOpen(val + 1);
 
         binding.searchbar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -182,6 +188,21 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
 
     }
 
+    void reviewDialog(){
+        ReviewManager manager = ReviewManagerFactory.create(this);
+        Task<ReviewInfo> request = manager.requestReviewFlow();
+        request.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                ReviewInfo reviewInfo = task.getResult();
+                Task <Void> flow = manager.launchReviewFlow(this, reviewInfo);
+                flow.addOnCompleteListener(task1 -> {
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown.
+                });
+            }
+        });
+    }
+
 
     @Override
     protected void onPause() {
@@ -194,6 +215,9 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (tinyDB.getTimesOpen() >= 3)
+            reviewDialog();
 
         binding.chipGroupMain.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {

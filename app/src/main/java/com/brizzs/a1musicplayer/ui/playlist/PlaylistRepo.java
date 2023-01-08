@@ -60,7 +60,7 @@ public class PlaylistRepo {
         if (playList.getImage3() != null) playList.setImage3(songs.getImage());
         if (playList.getImage4() != null) playList.setImage4(songs.getImage());
 
-        PlayListDB.databaseWriteExecutor.execute(() -> {
+        PlayListDB.playlistWriteExecutor.execute(() -> {
             playListDao.insert(playList);
         });
     }

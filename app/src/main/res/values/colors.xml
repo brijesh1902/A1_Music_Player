@@ -7,6 +7,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#0037FF</color>
+    <color name="primary">#007BFF</color>
     <color name="transparent_blue">#991145FF</color>
     <color name="lg_blue">#4DA0FF</color>
     <color name="lg_grey">#8B8B8B</color>
@@ -14,5 +15,5 @@
     <color name="transparent">#00FFFFFF</color>
     <color name="green">#129304</color>
     <color name="transparent_lg_blue">#C649A0FD</color>
-    <color name="glassmorphism_color">#4DFFFFFF</color>
+    <color name="glassmorphism_color">#65C8C8C8</color>
 </resources>

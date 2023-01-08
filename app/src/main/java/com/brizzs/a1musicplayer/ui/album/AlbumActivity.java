@@ -11,6 +11,9 @@ import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
 import static com.brizzs.a1musicplayer.utils.Common.value;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_ARTIST;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_IMAGE;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_NAME;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -50,7 +53,7 @@ import java.util.Objects;
 
 public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCallback {
 
-    private ActivityAlbumBinding binding;
+    ActivityAlbumBinding binding;
     Album currentAlbum;
     AlbumViewModel viewModel;
     SongsAdapter adapter;
@@ -61,9 +64,10 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityAlbumBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
         preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
         recyclerView = findViewById(R.id.rv_songs);
@@ -75,7 +79,14 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
                 .placeholder(R.drawable.music_note_24).error(R.drawable.music_note_24)
                 .into(binding.img);
 
-        viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        value = preferences.getString(MUSIC_FILE, null);
+        SHOW_MINI_PLAYER = value != null;
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
         recyclerView.setHasFixedSize(true);
@@ -91,32 +102,31 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
             Collections.sort(list, (s1, s2) -> s2.getName().compareTo(s1.getName()));
         });
 
+        binding.back.setOnClickListener(view -> {
+            finish();
+        });
 
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    public void onBackPressed() {
+        super.onBackPressed();
 
-        value = preferences.getString(MUSIC_FILE, null);
-        SHOW_MINI_PLAYER = value != null;
-
-        recyclerView.post(() -> adapter.notifyDataSetChanged());
+        finish();
 
     }
 
-        @Override
+    @Override
     public void Callback(int adapterPosition, List<Songs> data, ImageView image, TextView name, TextView singer) {
         Intent intent = new Intent(getApplicationContext(), PlayActivity.class);
         intent.putExtra("pos", adapterPosition);
         intent.putExtra(duration, "0");
         intent.putExtra(current_list, (Serializable) data);
 
-        Pair<View, String> pair1 = Pair.create(image, "image");
-        Pair<View, String> pair2 = Pair.create(name, "songname");
-        Pair<View, String> pair3 = Pair.create(singer, "singer");
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(this,  pair1, pair2, pair3);
+        Pair<View, String> pair1 = Pair.create(image, SONG_IMAGE);
+        Pair<View, String> pair2 = Pair.create(name, SONG_NAME);
+        Pair<View, String> pair3 = Pair.create(singer, SONG_ARTIST);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(this,  pair1, pair2, pair3);
 
         startActivity(intent, optionsCompat.toBundle());
     }

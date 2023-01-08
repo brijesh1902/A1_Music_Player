@@ -17,7 +17,7 @@ public abstract class SongsDB extends RoomDatabase {
 
     public abstract SongsDao songsDao();
 
-    private static final int NO_OF_THREADS = 4;
+    private static final int NO_OF_THREADS = 10;
     private static SongsDB instance;
 
     public static ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NO_OF_THREADS);

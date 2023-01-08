@@ -22,7 +22,7 @@ public class Album implements Serializable {
     @Ignore
     public Album(){}
 
-    public Album(String id, String album, String artist, String image) {
+    public Album(@NonNull String id, String album, String artist, String image) {
         this.id = id;
         this.album = album;
         this.artist = artist;

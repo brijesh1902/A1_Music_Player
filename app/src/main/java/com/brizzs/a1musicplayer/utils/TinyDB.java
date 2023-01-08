@@ -1,5 +1,7 @@
 package com.brizzs.a1musicplayer.utils;
 
+import static com.brizzs.a1musicplayer.utils.Common.APP_OPENED;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -31,6 +33,14 @@ public class TinyDB {
         context = appContext;
     }
 
+    public void setTimesOpen(int i){
+        putInt(APP_OPENED, i);
+        Log.e("setTimesOpen: ", i+"");
+    }
+
+    public int getTimesOpen(){
+        return getInt(APP_OPENED);
+    }
 
     /**
      * Decodes the Bitmap from 'path' and returns it

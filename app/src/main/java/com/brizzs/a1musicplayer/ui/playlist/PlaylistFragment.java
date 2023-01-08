@@ -5,7 +5,11 @@ import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.playlist;
 import static com.brizzs.a1musicplayer.utils.Common.recently;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_ARTIST;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_IMAGE;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_NAME;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -58,7 +62,6 @@ public class PlaylistFragment extends Fragment implements OnSongAdapterCallback 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         binding = FragmentPlaylistBinding.inflate(getLayoutInflater());
         view = binding.getRoot();
 
@@ -81,6 +84,7 @@ public class PlaylistFragment extends Fragment implements OnSongAdapterCallback 
         mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, state);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onResume() {
         super.onResume();
@@ -138,9 +142,9 @@ public class PlaylistFragment extends Fragment implements OnSongAdapterCallback 
         intent.putExtra(duration, "0");
         intent.putExtra(current_list, (Serializable) data);
 
-        Pair<View, String> pair1 = Pair.create(image, "image");
-        Pair<View, String> pair2 = Pair.create(name, "songname");
-        Pair<View, String> pair3 = Pair.create(singer, "singer");
+        Pair<View, String> pair1 = Pair.create(image, SONG_IMAGE);
+        Pair<View, String> pair2 = Pair.create(name, SONG_NAME);
+        Pair<View, String> pair3 = Pair.create(singer, SONG_ARTIST);
         ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(),  pair1, pair2, pair3);
 
         startActivity(intent, optionsCompat.toBundle());

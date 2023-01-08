@@ -22,7 +22,7 @@
             android:layout_margin="16sp"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/blue"
+            android:textColor="@color/primary"
             android:layout_gravity="center"
             />
 

@@ -12,9 +12,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.brizzs.a1musicplayer.R;
-import com.brizzs.a1musicplayer.utils.App;
-
-import java.util.Date;
+import com.brizzs.a1musicplayer.utils.MyApplication;
 
 public class AppOpenManager implements LifecycleObserver, Application.ActivityLifecycleCallbacks{
 
@@ -24,12 +22,12 @@ public class AppOpenManager implements LifecycleObserver, Application.ActivityLi
     private static final String AD_UNIT_ID = String.valueOf(R.string.BANNER_ID);
 //    private AppOpenAd appOpenAd = null;
 //    private AppOpenAd.AppOpenAdLoadCallback loadCallback;
-    private final App myApplication;
+    private final MyApplication myApplication;
     private Activity currentActivity;
     private long loadTime = 0;
 
     /** Constructor */
-    public AppOpenManager(App myApplication) {
+    public AppOpenManager(MyApplication myApplication) {
         this.myApplication = myApplication;
         this.myApplication.registerActivityLifecycleCallbacks(this);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);

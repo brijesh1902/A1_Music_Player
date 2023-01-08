@@ -3,6 +3,7 @@ package com.brizzs.a1musicplayer.dao;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -20,5 +21,8 @@ public interface PlayListDao {
 
     @Query("SELECT * FROM playlist")
     LiveData<List<PlayList>> getPlaylists();
+
+    @Query("DELETE FROM playlist")
+    void deleteAll();
 
 }

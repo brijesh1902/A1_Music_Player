@@ -17,6 +17,7 @@ public class Songs implements Serializable {
     private String name;
     private String artist, image, duration, data, date, album, albumKey;
 
+    @Ignore
     public Songs(){}
 
     public Songs(@NonNull String name, String artist,

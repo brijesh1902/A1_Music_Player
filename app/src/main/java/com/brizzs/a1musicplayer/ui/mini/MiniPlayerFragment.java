@@ -3,7 +3,7 @@ package com.brizzs.a1musicplayer.ui.mini;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.content.Context.MODE_PRIVATE;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.position;
-import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songslist;
+import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songsList;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_ARTIST;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_IMG;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_NAME;
@@ -16,6 +16,9 @@ import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.image;
 import static com.brizzs.a1musicplayer.utils.Common.isServiceRunning;
 import static com.brizzs.a1musicplayer.utils.Common.name;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_ARTIST;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_IMAGE;
+import static com.brizzs.a1musicplayer.utils.Const.SONG_NAME;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -23,6 +26,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
@@ -44,7 +48,6 @@ import com.bumptech.glide.Glide;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MiniPlayerFragment extends Fragment implements ServiceConnection, ActionPlaying {
 
@@ -62,7 +65,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
     ArrayList<Songs> list = new ArrayList<>();
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMiniPlayerBinding.inflate(getLayoutInflater());
         view = binding.getRoot();
 
@@ -86,16 +89,15 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
 
         binding.parent.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), PlayActivity.class);
-            intent.putExtra(current_list, (Serializable) songslist);
+            intent.putExtra(current_list, (Serializable) songsList);
             intent.putExtra("pos", musicService.position);
             intent.putExtra(duration, musicService.getCurrentPosition());
 
-            Pair<View, String> pair1 = Pair.create(binding.img, "image");
-            Pair<View, String> pair2 = Pair.create(binding.name, "songname");
-            Pair<View, String> pair3 = Pair.create(binding.artist, "singer");
+            Pair<View, String> pair1 = Pair.create(binding.img, SONG_IMAGE);
+            Pair<View, String> pair2 = Pair.create(binding.name, SONG_NAME);
+            Pair<View, String> pair3 = Pair.create(binding.artist, SONG_ARTIST);
 
-            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-                    .makeSceneTransitionAnimation(requireActivity(), pair1, pair2, pair3);
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), pair1, pair2, pair3);
 
             requireActivity().startActivity(intent, optionsCompat.toBundle());
         });
@@ -140,8 +142,8 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
             play_pauseClicked();
         });
 
-        if (musicService != null && !musicService.isplaying()) {
-            requireFragmentManager().beginTransaction().detach(this).commit();
+        if (musicService != null && !musicService.isPlaying()) {
+            requireActivity().getSupportFragmentManager().beginTransaction().detach(this).commit();
         }
 
     }
@@ -202,13 +204,13 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
         musicService = binder.getService();
         musicService.setCallback(this);
         
-        list = songslist;
+        list = songsList;
 
         setPlay();
         musicService.onCompleted();
         binding.indicator.setMax(musicService.getDuration());
 
-        if (musicService.isplaying()) binding.play.setImageResource(R.drawable.ic_play_24);
+        if (musicService.isPlaying()) binding.play.setImageResource(R.drawable.ic_play_24);
         else binding.play.setImageResource(R.drawable.ic_pause_24);
 
         currentTime = createTime(musicService.getCurrentPosition());
@@ -222,14 +224,14 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
 
     public void play_pauseClicked() {
         if (musicService != null) {
-            if (musicService.isplaying()) {
+            if (musicService.isPlaying()) {
                 binding.play.setImageResource(R.drawable.ic_pause_24);
                 musicService.pause();
-                musicService.showNotification(R.drawable.ic_pause_24);
+                musicService.showNotification(R.drawable.ic_pause_24, 0f);
             } else {
                 binding.play.setImageResource(R.drawable.ic_play_24);
                 musicService.start();
-                musicService.showNotification(R.drawable.ic_play_24);
+                musicService.showNotification(R.drawable.ic_play_24, 1f);
             }
         }
     }
@@ -248,7 +250,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
 
             musicService.create(position);
             musicService.start();
-            musicService.showNotification(R.drawable.ic_play_24);
+            musicService.showNotification(R.drawable.ic_play_24, 1f);
             setPlay();
         }
     }
@@ -271,7 +273,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
                 musicService.create(position);
                 musicService.start();
             }
-            musicService.showNotification(R.drawable.ic_play_24);
+            musicService.showNotification(R.drawable.ic_play_24, 1f);
             setPlay();
         }
     }
@@ -282,7 +284,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
             musicService.stop();
             musicService.release();
             requireActivity().unbindService(this);
-            requireFragmentManager().beginTransaction().detach(this).commit();
+            requireActivity().getSupportFragmentManager().beginTransaction().detach(this).commit();
         } catch (Exception e) {
             e.printStackTrace();
         }

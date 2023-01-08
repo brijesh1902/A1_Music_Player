@@ -1,45 +1,44 @@
 package com.brizzs.a1musicplayer.ui.main;
 
+import static com.brizzs.a1musicplayer.db.AlbumDB.albumWriteExecutor;
+import static com.brizzs.a1musicplayer.db.ArtistDB.artistWriteExecutor;
+import static com.brizzs.a1musicplayer.db.PlayListDB.playlistWriteExecutor;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.brizzs.a1musicplayer.dao.AlbumDao;
 import com.brizzs.a1musicplayer.dao.ArtistDao;
-import com.brizzs.a1musicplayer.db.AlbumDB;
-import com.brizzs.a1musicplayer.db.ArtistDB;
+import com.brizzs.a1musicplayer.dao.PlayListDao;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.model.Artist;
 import com.brizzs.a1musicplayer.model.Songs;
+import com.brizzs.a1musicplayer.utils.MyApplication;
 import com.brizzs.a1musicplayer.utils.Common;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class MainRepo {
 
     private final AlbumDao albumDao;
     private final ArtistDao artistDao;
+    private final PlayListDao playListDao;
     private String title, artist, data, date, duration, id, album, key;
-    private final List<Songs> list = new ArrayList<>();
     private final MutableLiveData<List<Songs>> liveData = new MutableLiveData<>();
 
     private final LiveData<List<Album>> albumliveData;
@@ -49,19 +48,20 @@ public class MainRepo {
 
     public MainRepo(Application application) {
         this.context = application;
-        AlbumDB db = AlbumDB.getInstance(application);
-        albumDao = db.albumDao();
+
+        albumDao = MyApplication.getInstance().getAlbumDao();
         albumliveData = albumDao.getAllAlbum();
 
-        ArtistDB artistDB = ArtistDB.getInstance(application);
-        artistDao = artistDB.artistDao();
+        artistDao = MyApplication.getInstance().getArtistDao();
         artistliveData = artistDao.getAllArtists();
+
+        playListDao = MyApplication.getInstance().getPlayListDao();
     }
 
     @SuppressLint("Range")
     public MutableLiveData<List<Songs>> getSongs() {
 
-        list.clear();
+        List<Songs> list = new ArrayList<>();
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
@@ -98,7 +98,9 @@ public class MainRepo {
                         liveData.setValue(list);
                     }
                 } while (cursor.moveToNext());
-            }
+            } else
+                deleteAll();
+            assert cursor != null;
             cursor.close();
         }
 
@@ -141,31 +143,18 @@ public class MainRepo {
                     albums.setArtist(artist);
                     albums.setImage(uriImage.toString());
 
+//                    insertAlbum(albums);
                     new InsertTask(albumDao).execute(albums);
 
                 }
             } while (cursor.moveToNext());
-        }
+        } else
+            deleteAll();
+
+        assert cursor != null;
         cursor.close();
 
         return albumliveData;
-    }
-
-    private static class InsertTask extends AsyncTask<Album, Void, Void> {
-        private final AlbumDao dao;
-        public InsertTask(AlbumDao a) {
-            this.dao = a;
-        }
-
-        @Override
-        protected Void doInBackground(Album... albums) {
-            try {
-                dao.insert(albums[0]);
-            } catch (Exception e) {
-                Log.i("doInBackground: ", e.toString());
-            }
-            return null;
-        }
     }
 
     @SuppressLint("Range")
@@ -192,7 +181,7 @@ public class MainRepo {
                 id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
                 key = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 
-                Log.e("getArtistSongs: ", artist+"     "+id+"    "+key);
+                Log.e("getArtistSongs: ", artist + "     " + id + "    " + key);
 
                 Uri uriImage = ContentUris.withAppendedId(Common.art_Uri, Long.parseLong(key));
 
@@ -203,34 +192,51 @@ public class MainRepo {
                     art.setSongName(data);
                     art.setImage(uriImage.toString());
 
-                    new InsertArtistTask(artistDao).execute(art);
+                    insertArtist(art);
 
                 }
             } while (cursor.moveToNext());
-        }
-        if (cursor != null) {
-            cursor.close();
-        }
+        } else deleteAll();
+
+        assert cursor != null;
+        cursor.close();
 
         return artistliveData;
     }
 
-    private static class InsertArtistTask extends AsyncTask<Artist, Void, Void> {
-        private ArtistDao dao;
-
-        public InsertArtistTask(ArtistDao a) {
+    private static class InsertTask extends AsyncTask<Album, Void, Void> {
+        private final AlbumDao dao;
+        public InsertTask(AlbumDao a) {
             this.dao = a;
         }
 
         @Override
-        protected Void doInBackground(Artist... artists) {
+        protected Void doInBackground(Album... albums) {
             try {
-                dao.Insert(artists[0]);
+                dao.insert(albums[0]);
             } catch (Exception e) {
                 Log.i("doInBackground: ", e.toString());
             }
             return null;
         }
+    }
+
+    private void insertAlbum(Album albums) {
+        try {
+            albumWriteExecutor.execute(() -> albumDao.insert(albums));
+        } catch (Exception e){
+            Log.i("doInBackground: ", e.toString());
+        }
+    }
+
+    private void insertArtist(Artist art) {
+        artistWriteExecutor.execute(() -> artistDao.Insert(art));
+    }
+
+    private void deleteAll() {
+        albumWriteExecutor.execute(albumDao::deleteAll);
+        artistWriteExecutor.execute(artistDao::deleteAll);
+        playlistWriteExecutor.execute(playListDao::deleteAll);
     }
 
 }
