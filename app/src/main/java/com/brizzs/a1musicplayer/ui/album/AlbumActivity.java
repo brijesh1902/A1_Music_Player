@@ -39,6 +39,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -53,11 +54,12 @@ import java.util.Objects;
 
 public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCallback {
 
+    private static final String TAG = "AlbumActivity";
+
     ActivityAlbumBinding binding;
     Album currentAlbum;
     AlbumViewModel viewModel;
     SongsAdapter adapter;
-    List<Songs> list = new ArrayList<>();
     RecyclerView recyclerView;
     SharedPreferences preferences;
 
@@ -75,9 +77,24 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
         currentAlbum = (Album) getIntent().getSerializableExtra(current_album);
 
         binding.albumName.setText(currentAlbum.getAlbum());
+
         Glide.with(getApplicationContext()).load(currentAlbum.getImage())
                 .placeholder(R.drawable.music_note_24).error(R.drawable.music_note_24)
                 .into(binding.img);
+
+        GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(null);
+
+
+        viewModel.getAlbumSongsLiveData(currentAlbum.getId()).observe(this, songs -> {
+            adapter = new SongsAdapter( this, songs, recently, layoutManager);
+
+            recyclerView.setAdapter(adapter);
+
+            Collections.sort(songs, (s1, s2) -> s2.getName().compareTo(s1.getName()));
+        });
 
     }
 
@@ -85,22 +102,9 @@ public class AlbumActivity extends AppCompatActivity implements OnSongAdapterCal
     protected void onResume() {
         super.onResume();
 
+
         value = preferences.getString(MUSIC_FILE, null);
         SHOW_MINI_PLAYER = value != null;
-
-        GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(null);
-
-        viewModel.getAlbumSongsLiveData(currentAlbum.getId()).observe(this, songs -> {
-            list = songs;
-            adapter = new SongsAdapter( this, list, recently, layoutManager);
-
-            recyclerView.setAdapter(adapter);
-
-            Collections.sort(list, (s1, s2) -> s2.getName().compareTo(s1.getName()));
-        });
 
         binding.back.setOnClickListener(view -> {
             finish();

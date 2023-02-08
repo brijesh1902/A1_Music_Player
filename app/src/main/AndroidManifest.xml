@@ -41,9 +41,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicPlayer">
-        <profileable
-            android:shell="true"
-            tools:targetApi="33" />
+        <activity
+            android:name=".ui.playing.PlayingActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
 
         <activity
             android:name=".ui.playing.FullScreenActivity"

@@ -4,20 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context=".ui.playing.PlayActivity">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_playlist"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="12dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/nlayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="@drawable/bg_gradient"
+    tools:context=".ui.playing.PlayingActivity">
 
 
     <com.google.android.material.card.MaterialCardView
@@ -26,7 +14,6 @@
         android:layout_height="0dp"
         android:layout_margin="16dp"
         app:cardCornerRadius="16dp"
-        app:cardBackgroundColor="@color/white"
         app:cardElevation="1dp"
         app:layout_constraintBottom_toTopOf="@+id/nlayout"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,6 +25,7 @@
             android:id="@+id/img"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="15dp"
             android:scaleType="centerCrop"
             android:src="@drawable/music_note_24"
             android:transitionName="image" />
@@ -142,6 +130,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="15dp"
         android:background="@drawable/bg_circle"
+        android:backgroundTint="@color/white"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -228,6 +217,16 @@
         app:layout_constraintBottom_toTopOf="@+id/p_play"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_playlist"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/materialCardView5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/back"

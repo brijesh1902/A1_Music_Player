@@ -15,6 +15,7 @@ import static com.brizzs.a1musicplayer.utils.Const.SONG_ARTIST;
 import static com.brizzs.a1musicplayer.utils.Const.SONG_IMAGE;
 import static com.brizzs.a1musicplayer.utils.Const.SONG_NAME;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -58,6 +59,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
 
@@ -91,14 +93,14 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
     private static final DiffUtil.ItemCallback<Songs> DIFF_CALLBACK = new DiffUtil.ItemCallback<Songs>() {
         @Override
         public boolean areItemsTheSame(@NonNull Songs oldItem, @NonNull Songs newItem) {
-            return oldItem == newItem;
+            return oldItem.getName().equals(newItem.getName()) ||
+                    oldItem.getArtist().equals(newItem.getArtist()) ||
+                    oldItem.getImage().equals(newItem.getImage());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Songs oldItem, @NonNull Songs newItem) {
-            return oldItem.getName().equals(newItem.getName()) &&
-                    oldItem.getArtist().equals(newItem.getArtist()) &&
-                    oldItem.getImage().equals(newItem.getImage());
+            return Objects.equals(oldItem, newItem);
         }
     };
 
@@ -142,6 +144,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
 
     }
 
+    @SuppressLint("NonConstantResourceId")
     private void recentlyView(int pos, ViewHolder holder) {
         final Songs options = data.get(pos);
 

@@ -2,6 +2,7 @@ package com.brizzs.a1musicplayer.ui.playing;
 
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_NAME;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
+import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
 import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.actionName;
 import static com.brizzs.a1musicplayer.utils.Common.createTime;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -94,9 +96,10 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         if (isPlayListOpen) {
             isPlayListOpen = false;
             binding.rvPlaylist.setVisibility(View.GONE);
+            binding.materialCardView5.setVisibility(View.VISIBLE);
             binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
         } else {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             super.onBackPressed();
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             supportFinishAfterTransition();
@@ -121,16 +124,16 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_item);
         preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
         tinyDB = new TinyDB(getApplicationContext());
+
         isService = isServiceRunning(MusicService.class.getName(), getApplicationContext());
 
         position = getIntent().getIntExtra("pos", 0);
         actionBack = getIntent().getStringExtra(actionName);
+
         songsList = (ArrayList<Songs>) getIntent().getSerializableExtra(current_list);
 
         SongsDB db = SongsDB.getDatabase(getApplicationContext());
         songsDao = db.songsDao();
-
-        if (actionBack != null) Log.e("onCreate: ", actionBack);
 
         audioManager = (AudioManager) getApplicationContext().getSystemService(AUDIO_SERVICE);
         maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
@@ -181,7 +184,6 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         binding.rvPlaylist.setLayoutManager(layoutManager);
         binding.rvPlaylist.setItemAnimator(null);
 
-
     }
 
 
@@ -210,6 +212,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     @Override
     protected void onStart() {
         super.onStart();
+
         if (!isService) {
             start_service();
         } else if (!songsList.get(position).getName().equals(preferences.getString(MUSIC_NAME, null))){
@@ -221,8 +224,10 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     @Override
     protected void onResume() {
         super.onResume();
+
         Intent intent = new Intent(this, MusicService.class);
         bindService(intent, this, BIND_AUTO_CREATE);
+
         if (musicService != null) {
             musicService.onCompleted();
         }
@@ -234,9 +239,10 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             if (isPlayListOpen) {
                 isPlayListOpen = false;
                 binding.rvPlaylist.setVisibility(View.GONE);
+                binding.materialCardView5.setVisibility(View.VISIBLE);
                 binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
             } else {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//                startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 supportFinishAfterTransition();
             }
@@ -246,22 +252,25 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             v.startAnimation(animation);
             if (!isPlayListOpen) {
                 binding.playlist.setBackgroundResource(R.drawable.ic_baseline_white_playlist_play_24);
-                isPlayListOpen = true;
+                binding.materialCardView5.setVisibility(View.GONE);
                 binding.rvPlaylist.setVisibility(View.VISIBLE);
                 adapter = new SongsAdapter(this, songsList, recently, layoutManager);
                 binding.rvPlaylist.setAdapter(adapter);
+                binding.rvPlaylist.post(()->binding.rvPlaylist.scrollToPosition(position));
+                isPlayListOpen = true;
             } else {
                 binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
-                isPlayListOpen = false;
+                binding.materialCardView5.setVisibility(View.VISIBLE);
                 binding.rvPlaylist.setVisibility(View.GONE);
+                isPlayListOpen = false;
             }
         });
 
         ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                Collections.swap(songsList, viewHolder.getAdapterPosition(), target.getAdapterPosition());
-                adapter.notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                Collections.swap(songsList, viewHolder.getAbsoluteAdapterPosition(), target.getAbsoluteAdapterPosition());
+                adapter.notifyItemMoved(viewHolder.getAbsoluteAdapterPosition(), target.getAbsoluteAdapterPosition());
                 binding.rvPlaylist.invalidate();
                 return true;
             }
@@ -360,7 +369,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     private void start_service() {
         Intent intent = new Intent(this, MusicService.class);
         intent.putExtra(servicePosition, position);
-        intent.putExtra(current_list, (Serializable) songsList);
+        intent.putExtra(current_list, songsList);
         startService(intent);
     }
 
@@ -428,10 +437,15 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
         setPlayname();
         musicService.onCompleted();
-        seekBar.setMax(musicService.getDuration());
-        if (musicService.isPlaying()) binding.pPlay.setImageResource(R.drawable.ic_play_24);
-        else binding.pPlay.setImageResource(R.drawable.ic_pause_24);
-        musicService.showNotification(R.drawable.ic_play_24, 1f);
+        try {
+            seekBar.setMax(musicService.getDuration());
+            if (musicService.isPlaying()) binding.pPlay.setImageResource(R.drawable.ic_play_24);
+            else binding.pPlay.setImageResource(R.drawable.ic_pause_24);
+            musicService.showNotification(R.drawable.ic_play_24, 1f);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -439,6 +453,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     public void onServiceDisconnected(ComponentName name) {
         musicService = null;
         value = null;
+        SHOW_MINI_PLAYER = false;
     }
 
     @Override
@@ -555,12 +570,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
                     volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     binding.volume.setText(String.valueOf(volume));
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            binding.volume.setVisibility(View.GONE);
-                        }
-                    }, delay);
+                    handler.postDelayed(() -> binding.volume.setVisibility(View.GONE), delay);
 
                     return false;
                 }
@@ -570,6 +580,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             view.setOnTouchListener(this);
         }
 
+        @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             return gestureDetector.onTouchEvent(event);

@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -63,6 +64,7 @@ import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
 import com.brizzs.a1musicplayer.ui.artist.ArtistFragment;
+import com.brizzs.a1musicplayer.ui.mini.MiniPlayerFragment;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
 import com.brizzs.a1musicplayer.ui.playlist.PlaylistFragment;
 import com.brizzs.a1musicplayer.ui.recently.RecentlyFragment;
@@ -159,11 +161,13 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
                 if (!s.toString().equals("")) {
                     binding.rvSongs.setVisibility(View.VISIBLE);
                     binding.container.setVisibility(View.GONE);
+                    binding.btnView.setVisibility(View.GONE);
                     binding.chipGroupMain.setVisibility(View.GONE);
                     searchSongs(s.toString());
                 } else {
                     binding.container.setVisibility(View.VISIBLE);
                     binding.chipGroupMain.setVisibility(View.VISIBLE);
+                    binding.btnView.setVisibility(View.VISIBLE);
                     binding.rvSongs.setVisibility(View.GONE);
                 }
             }
@@ -174,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
             binding.rvSongs.setVisibility(View.GONE);
             binding.container.setVisibility(View.VISIBLE);
             binding.chipGroupMain.setVisibility(View.VISIBLE);
+            binding.btnView.setVisibility(View.VISIBLE);
         });
 
         binding.setting.setOnClickListener(v -> {
@@ -183,18 +188,18 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         });
 
         viewModel.getLiveData().observe(MainActivity.this, songs -> {
-                list = songs;
+            list = songs;
         });
 
     }
 
-    void reviewDialog(){
+    void reviewDialog() {
         ReviewManager manager = ReviewManagerFactory.create(this);
         Task<ReviewInfo> request = manager.requestReviewFlow();
         request.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 ReviewInfo reviewInfo = task.getResult();
-                Task <Void> flow = manager.launchReviewFlow(this, reviewInfo);
+                Task<Void> flow = manager.launchReviewFlow(this, reviewInfo);
                 flow.addOnCompleteListener(task1 -> {
                     // The flow has finished. The API does not indicate whether the user
                     // reviewed or not, or even whether the review dialog was shown.
@@ -212,9 +217,12 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, state);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onResume() {
         super.onResume();
+
+//        getSupportFragmentManager().beginTransaction().replace(R.id.mini_card, new MiniPlayerFragment()).commit();
 
         if (tinyDB.getTimesOpen() >= 3)
             reviewDialog();
@@ -251,13 +259,13 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
             binding.btnView.invalidate();
         });
 
-       new Thread(() -> {
-           if (ISGRIDVIEW) {
-               binding.btnView.setBackgroundResource(R.drawable.ic_baseline_view_list_24);
-           } else {
-               binding.btnView.setBackgroundResource(R.drawable.ic_baseline_grid_view_24);
-           }
-       }).start();
+        new Thread(() -> {
+            if (ISGRIDVIEW) {
+                binding.btnView.setBackgroundResource(R.drawable.ic_baseline_view_list_24);
+            } else {
+                binding.btnView.setBackgroundResource(R.drawable.ic_baseline_grid_view_24);
+            }
+        }).start();
 
         value = preferences.getString(MUSIC_FILE, null);
         SHOW_MINI_PLAYER = value != null;

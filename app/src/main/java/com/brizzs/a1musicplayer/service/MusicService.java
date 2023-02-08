@@ -44,6 +44,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -144,6 +145,7 @@ public class MusicService extends Service {
         mController.unregisterCallback(mCb);
         stopForeground(true);
         stopSelf();
+        actionPlaying.removeClicked();
         super.onDestroy();
     }
 
@@ -151,9 +153,11 @@ public class MusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         MediaButtonReceiver.handleIntent(mediaSessionCompat, intent);
 
+        int myPosition = intent.getIntExtra(servicePosition, -1);
+        if (myPosition != -1)
+            playMedia(myPosition);
+
         try {
-            int myPosition = intent.getIntExtra(servicePosition, -1);
-            if (myPosition != -1) playMedia(myPosition);
 
             String action_name = intent.getStringExtra(actionName);
             if (action_name != null) {
@@ -190,9 +194,9 @@ public class MusicService extends Service {
 
     private void removeClicked() {
         if (actionPlaying != null) {
+            mController.unregisterCallback(mCb);
             stopForeground(true);
             stopSelf();
-            songsList.clear();
             actionPlaying.removeClicked();
         }
     }
@@ -212,7 +216,8 @@ public class MusicService extends Service {
     }
 
     public void play_pause() {
-        if (actionPlaying != null) actionPlaying.play_pauseClicked();
+        if (actionPlaying != null)
+            actionPlaying.play_pauseClicked();
     }
 
     public void setLoop(boolean b) {

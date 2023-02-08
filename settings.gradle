@@ -14,4 +14,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "A1 Music Player"
 include ':app'
-include ':benchmark'

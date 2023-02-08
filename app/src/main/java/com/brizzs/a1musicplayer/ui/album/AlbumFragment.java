@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
 
@@ -102,7 +103,6 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                Log.e("onScrolled: ", dy+"---");
                 currentScrollPosition += dy;
                 if( currentScrollPosition > 0 ) {
                     binding.top.setVisibility(View.VISIBLE);
@@ -118,12 +118,10 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
 
         if (mBundleRecyclerViewState != null) {
             Parcelable state = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            binding.rvSongs.getLayoutManager().onRestoreInstanceState(state);
+            Objects.requireNonNull(binding.rvSongs.getLayoutManager()).onRestoreInstanceState(state);
         }
 
-        if( currentScrollPosition > 0 ) {
-            binding.top.setVisibility(View.VISIBLE);
-        } else binding.top.setVisibility(View.GONE);
+        binding.top.setVisibility(currentScrollPosition > 0 ? View.VISIBLE : View.GONE);
 
     }
 
@@ -141,8 +139,7 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
         Pair<View, String> pair1 = Pair.create(image, "image");
         Pair<View, String> pair2 = Pair.create(name, "songname");
         Pair<View, String> pair3 = Pair.create(singer, "singer");
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(requireActivity(),  pair1, pair2, pair3);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(),  pair1, pair2, pair3);
 
         startActivity(intent, optionsCompat.toBundle());
     }

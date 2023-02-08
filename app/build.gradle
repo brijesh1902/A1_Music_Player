@@ -11,8 +11,8 @@ android {
         applicationId "com.brizzs.a1musicplayer"
         minSdk 21
         targetSdk 33
-        versionCode 7
-        versionName "1.2.0"
+        versionCode 8
+        versionName "1.2.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -22,22 +22,15 @@ android {
 //            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-
-        benchmark {
-            initWith buildTypes.release
-            signingConfig signingConfigs.debug
-            matchingFallbacks = ['release']
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'benchmark-rules.pro'
-        }
         
-//        applicationVariants.all {
-//            variant ->
-//                variant.outputs.each {
-//                    output ->
-//                        def name =  "a1_music_player_v${variant.versionName}.apk"
-//                        output.outputFileName = name;
-//                }
-//        }
+        applicationVariants.all {
+            variant ->
+                variant.outputs.each {
+                    output ->
+                        def name =  "a1_music_player_v${variant.versionName}.apk"
+                        output.outputFileName = name;
+                }
+        }
 
     }
     compileOptions {
@@ -60,6 +53,8 @@ android {
 
 dependencies {
 
+//    implementation 'com.swipper.library:library:0.1.1'
+
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:31.1.1')
     implementation 'com.google.firebase:firebase-analytics'
@@ -69,8 +64,8 @@ dependencies {
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -90,6 +85,8 @@ dependencies {
 
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.2'
+
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation "androidx.lifecycle:lifecycle-runtime:2.5.1"
@@ -102,8 +99,8 @@ dependencies {
     implementation "com.airbnb.android:lottie:3.4.0"
 
     // Room DB
-    implementation "androidx.room:room-runtime:2.4.3"
-    annotationProcessor "androidx.room:room-compiler:2.4.3"
+    implementation "androidx.room:room-runtime:2.5.0"
+    annotationProcessor "androidx.room:room-compiler:2.5.0"
 
     // Dagger
     implementation 'com.google.dagger:dagger:2.44'

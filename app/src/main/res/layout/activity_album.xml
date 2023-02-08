@@ -59,17 +59,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/img" />
 
-
-    <fragment
+    <FrameLayout
         android:id="@+id/fragment"
-        android:name="com.brizzs.a1musicplayer.ui.mini.MiniPlayerFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout="@layout/fragment_mini_player" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <fragment
+            android:name="com.brizzs.a1musicplayer.ui.mini.MiniPlayerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:layout="@layout/fragment_mini_player" />
+
+    </FrameLayout>
+
 
 
 </androidx.constraintlayout.motion.widget.MotionLayout>
