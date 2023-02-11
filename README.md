@@ -10,10 +10,10 @@
 # Screen Design
  <div class="row">
   <div class="column">
-    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/1.png" alt="Screen 1" style="width:20%">
-    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/2.png" alt="Screen 2" style="width:20%">
-    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/3.png" alt="Screen 3" style="width:20%">
-    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/4.png" alt="Screen 4" style="width:20%">
+    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/1.png?raw=true" alt="Screen 1" style="width:20%">
+    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/2.png?raw=true" alt="Screen 2" style="width:20%">
+    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/3.png?raw=true" alt="Screen 3" style="width:20%">
+    <img src="https://github.com/brijesh1902/A1_Music_Player/blob/master/screenshots/4.png?raw=true" alt="Screen 4" style="width:20%">
   </div>
 </div>
   
