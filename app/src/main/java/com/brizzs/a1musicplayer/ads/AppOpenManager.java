@@ -9,7 +9,6 @@ import android.util.Log;
 
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
-import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.utils.MyApplication;
@@ -30,7 +29,7 @@ public class AppOpenManager implements LifecycleObserver, Application.ActivityLi
     public AppOpenManager(MyApplication myApplication) {
         this.myApplication = myApplication;
         this.myApplication.registerActivityLifecycleCallbacks(this);
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+//        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
     /** LifecycleObserver methods */

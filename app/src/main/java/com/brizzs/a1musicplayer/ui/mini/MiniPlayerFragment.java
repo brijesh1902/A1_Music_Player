@@ -248,6 +248,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
                 musicService.start();
                 musicService.showNotification(R.drawable.ic_play_24, 1f);
             }
+            binding.parent.invalidate();
         }
         Log.e(TAG, "play_pauseClicked: " );
     }
@@ -268,6 +269,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
             musicService.start();
             musicService.showNotification(R.drawable.ic_play_24, 1f);
             setPlay();
+            binding.parent.invalidate();
         }
     }
 
@@ -291,6 +293,7 @@ public class MiniPlayerFragment extends Fragment implements ServiceConnection, A
             }
             musicService.showNotification(R.drawable.ic_play_24, 1f);
             setPlay();
+            binding.parent.invalidate();
         }
     }
 

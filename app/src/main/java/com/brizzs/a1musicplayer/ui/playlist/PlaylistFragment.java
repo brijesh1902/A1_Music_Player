@@ -105,6 +105,7 @@ public class PlaylistFragment extends Fragment implements OnSongAdapterCallback 
                 Toast.makeText(requireActivity(), "No songs are added to favourite list.", Toast.LENGTH_SHORT).show();
             }
         });
+        binding.rvSongs.smoothScrollToPosition(0);
 
         binding.rvSongs.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

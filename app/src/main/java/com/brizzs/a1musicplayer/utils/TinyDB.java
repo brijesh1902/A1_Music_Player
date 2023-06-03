@@ -593,4 +593,13 @@ public class TinyDB {
             throw new NullPointerException();
         }
     }
+
+    public boolean isGranted() {
+        return preferences.getBoolean("permission", false);
+    }
+
+    public void setGranted(boolean value) {
+        preferences.edit().putBoolean("permission", value).apply();
+    }
+
 }

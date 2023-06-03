@@ -71,18 +71,6 @@ public class RecentlyFragment extends Fragment implements OnSongAdapterCallback 
 
         animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_item);
 
-        layoutManager = new GridLayoutManager(getContext(), SPAN_COUNT);
-        binding.rvSongs.setHasFixedSize(true);
-        binding.rvSongs.setLayoutManager(layoutManager);
-        binding.rvSongs.setItemAnimator(null);
-
-        viewModel.getLiveData().observe(getViewLifecycleOwner(), songs -> {
-            adapter = new SongsAdapter( this, songs, recently, layoutManager);
-            binding.rvSongs.setAdapter(adapter);
-
-            Collections.sort(songs, (s1, s2) -> s2.getDate().compareTo(s1.getDate()));
-        });
-
         return view;
     }
 
@@ -97,6 +85,19 @@ public class RecentlyFragment extends Fragment implements OnSongAdapterCallback 
     @Override
     public void onResume() {
         super.onResume();
+
+        layoutManager = new GridLayoutManager(getContext(), SPAN_COUNT);
+        binding.rvSongs.setHasFixedSize(true);
+        binding.rvSongs.setLayoutManager(layoutManager);
+        binding.rvSongs.setItemAnimator(null);
+
+        viewModel.getLiveData().observe(getViewLifecycleOwner(), songs -> {
+            adapter = new SongsAdapter( this, songs, recently, layoutManager);
+            binding.rvSongs.setAdapter(adapter);
+
+            Collections.sort(songs, (s1, s2) -> s2.getDate().compareTo(s1.getDate()));
+        });
+        binding.rvSongs.smoothScrollToPosition(0);
 
         binding.rvSongs.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

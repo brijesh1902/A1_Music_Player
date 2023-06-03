@@ -90,7 +90,7 @@ public class SongsAdapter  extends ListAdapter<Songs, SongsAdapter.ViewHolder> {
         }
     }
 
-    private static final DiffUtil.ItemCallback<Songs> DIFF_CALLBACK = new DiffUtil.ItemCallback<Songs>() {
+    static DiffUtil.ItemCallback<Songs> DIFF_CALLBACK = new DiffUtil.ItemCallback<Songs>() {
         @Override
         public boolean areItemsTheSame(@NonNull Songs oldItem, @NonNull Songs newItem) {
             return oldItem.getName().equals(newItem.getName()) ||

@@ -11,15 +11,15 @@ android {
         applicationId "com.brizzs.a1musicplayer"
         minSdk 21
         targetSdk 33
-        versionCode 8
-        versionName "1.2.1"
+        versionCode 9
+        versionName "1.2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-//            minifyEnabled false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         
@@ -64,8 +64,8 @@ dependencies {
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -80,18 +80,14 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.3'
 
     // LiveData
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.5.1"
-    implementation "androidx.lifecycle:lifecycle-livedata:2.5.1"
+//    implementation "androidx.lifecycle:lifecycle-viewmodel:2.6.1"
+//    implementation "androidx.lifecycle:lifecycle-livedata:2.6.1"
 
     implementation 'androidx.palette:palette:1.0.0'
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.2'
+    implementation 'com.google.android.exoplayer:exoplayer:2.18.7'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.7'
 
 
-    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation "androidx.lifecycle:lifecycle-runtime:2.5.1"
-    //noinspection LifecycleAnnotationProcessorWithJava8
-    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.5.1"
 
     // Equalizer
 //    implementation 'com.github.bullheadandplato:AndroidEqualizer:2.2'
@@ -99,15 +95,15 @@ dependencies {
     implementation "com.airbnb.android:lottie:3.4.0"
 
     // Room DB
-    implementation "androidx.room:room-runtime:2.5.0"
-    annotationProcessor "androidx.room:room-compiler:2.5.0"
+    implementation "androidx.room:room-runtime:2.5.1"
+    annotationProcessor "androidx.room:room-compiler:2.5.1"
 
     // Dagger
-    implementation 'com.google.dagger:dagger:2.44'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.44'
+//    implementation 'com.google.dagger:dagger:2.44'
+//    annotationProcessor 'com.google.dagger:dagger-compiler:2.44'
 
     //RxJava
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
-    implementation "io.reactivex.rxjava3:rxandroid:3.0.0"
+//    implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
+//    implementation "io.reactivex.rxjava3:rxandroid:3.0.0"
 
 }

@@ -44,6 +44,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -386,7 +387,7 @@ public class MusicService extends Service {
                         .setContentIntent(pendingIntent)
 //                        .setStyle(new Notification.MediaStyle())
                         .setStyle(new Notification.MediaStyle()
-                                .setShowActionsInCompactView(0, 1, 2)
+//                                .setShowActionsInCompactView(0, 1, 2)
                                 .setMediaSession(mediaSession.getSessionToken()))
                         .setShowWhen(true)
                         .setFullScreenIntent(fullScreenPendingIntent, true)
@@ -415,7 +416,7 @@ public class MusicService extends Service {
                         .setContentIntent(pendingIntent)
 //                        .setStyle(new Notification.MediaStyle())
                         .setStyle(new Notification.MediaStyle()
-                                .setShowActionsInCompactView(0, 1, 2)
+//                                .setShowActionsInCompactView(0, 1, 2)
                                 .setMediaSession(mediaSession.getSessionToken()))
                         .setFullScreenIntent(fullScreenPendingIntent, true)
                         .setShowWhen(true)

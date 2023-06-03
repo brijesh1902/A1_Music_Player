@@ -97,6 +97,7 @@ public class AlbumFragment extends Fragment implements OnSongAdapterCallback {
             }
 
         });
+        binding.rvSongs.smoothScrollToPosition(0);
 
         binding.rvSongs.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

@@ -63,12 +63,15 @@ public class MainRepo {
 
         List<Songs> list = new ArrayList<>();
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
+        if ((ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) ||
+                (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED)) {
+
+            Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
             String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
             String sortRecently = MediaStore.Audio.Media.DATE_ADDED + ">" + (System.currentTimeMillis() / 1000);
-
-            Cursor cursor = context.getContentResolver().query(uri[0], null, selection, null, sortRecently);
+//            String[] projection = {MediaStore.Audio.Media.DATA};
+            Cursor cursor = context.getContentResolver().query(uri, null, selection, null, sortRecently);
 
             if (cursor != null && cursor.moveToFirst()) {
                 do {
@@ -110,13 +113,13 @@ public class MainRepo {
     @SuppressLint("Range")
     public LiveData<List<Album>> getAlbumSongs() {
 
-        Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
         String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
 
         String sort = MediaStore.Audio.Media.ALBUM + " COLLATE NOCASE ASC";
 
-        Cursor cursor = context.getContentResolver().query(uri[0],
+        Cursor cursor = context.getContentResolver().query(uri,
                 null,
                 selection,
                 null,
@@ -160,13 +163,13 @@ public class MainRepo {
     @SuppressLint("Range")
     public LiveData<List<Artist>> getArtistSongs() {
 
-        Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
         String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
 
         String sort = MediaStore.Audio.Media.ALBUM + " COLLATE NOCASE ASC";
 
-        Cursor cursor = context.getContentResolver().query(uri[0],
+        Cursor cursor = context.getContentResolver().query(uri,
                 null,
                 selection,
                 null,

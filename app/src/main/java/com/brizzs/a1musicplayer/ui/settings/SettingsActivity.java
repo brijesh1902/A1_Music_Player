@@ -16,7 +16,7 @@ import com.brizzs.a1musicplayer.BuildConfig;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.databinding.ActivitySettingsBinding;
 
-public class Settings extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     ActivitySettingsBinding binding;
     String appName = "A1 Music Player", email = "palbrijesh59@gmail.com",
