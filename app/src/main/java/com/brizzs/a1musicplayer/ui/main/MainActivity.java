@@ -1,10 +1,10 @@
 package com.brizzs.a1musicplayer.ui.main;
 
 import static com.brizzs.a1musicplayer.utils.Common.ISGRIDVIEW;
-import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_FILE;
 import static com.brizzs.a1musicplayer.utils.Common.MUSIC_PLAYED;
 import static com.brizzs.a1musicplayer.utils.Common.SHOW_MINI_PLAYER;
+import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT;
 import static com.brizzs.a1musicplayer.utils.Common.SPAN_COUNT_ONE;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
@@ -12,19 +12,8 @@ import static com.brizzs.a1musicplayer.utils.Common.recently;
 import static com.brizzs.a1musicplayer.utils.Common.value;
 import static com.brizzs.a1musicplayer.utils.Const.CLICKANIMATION;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.util.Pair;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -36,7 +25,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -47,6 +35,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+
 import com.brizzs.a1musicplayer.BuildConfig;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.adapters.SongsAdapter;
@@ -54,13 +52,15 @@ import com.brizzs.a1musicplayer.databinding.ActivityMainBinding;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
+import com.brizzs.a1musicplayer.ui.album.AlbumFragment;
 import com.brizzs.a1musicplayer.ui.artist.ArtistFragment;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
 import com.brizzs.a1musicplayer.ui.playlist.PlaylistFragment;
 import com.brizzs.a1musicplayer.ui.recently.RecentlyFragment;
-import com.brizzs.a1musicplayer.ui.album.AlbumFragment;
 import com.brizzs.a1musicplayer.ui.settings.SettingsActivity;
-import com.brizzs.a1musicplayer.utils.TinyDB;
+import com.brizzs.a1musicplayer.utils.PermissionChecker;
+import com.brizzs.a1musicplayer.utils.SharePreference;
+import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.InstallState;
@@ -71,7 +71,6 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
-import com.google.android.play.core.tasks.Task;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -81,14 +80,14 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements OnSongAdapterCallback {
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
-    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 100;
     private static final String TAG = "MainActivity";
     private static Bundle mBundleRecyclerViewState;
     SongsAdapter adapter;
     List<Songs> list = new ArrayList<>();
     ActivityMainBinding binding;
     MainViewModel viewModel;
-    TinyDB tinyDB;
+    SharePreference sharePreference;
     SharedPreferences preferences;
     GridLayoutManager gridLayoutManager;
     FragmentManager fragmentManager;
@@ -99,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     private static final int RC_APP_UPDATE = 11;
     int fragmentNo = 0;
     boolean isGranted;
+    PermissionChecker permissionChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +107,9 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         fragmentManager = getSupportFragmentManager();
         setContentView(binding.getRoot());
 
+        permissionChecker = new PermissionChecker(this);
+        sharePreference = new SharePreference(getApplicationContext());
 
-        tinyDB = new TinyDB(getApplicationContext());
         preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_item);
@@ -117,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         binding.rvSongs.setHasFixedSize(true);
         binding.rvSongs.setLayoutManager(gridLayoutManager);
 
-        int val = tinyDB.getTimesOpen();
-        tinyDB.setTimesOpen(val + 1);
+        int val = sharePreference.getTimesOpen();
+        sharePreference.setTimesOpen(val + 1);
 
         binding.searchbar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -169,17 +170,18 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     }
 
     void reviewDialog() {
-        ReviewManager manager = ReviewManagerFactory.create(this);
+        ReviewManager manager = ReviewManagerFactory.create(MainActivity.this);
         Task<ReviewInfo> request = manager.requestReviewFlow();
         request.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 ReviewInfo reviewInfo = task.getResult();
-                Task<Void> flow = manager.launchReviewFlow(this, reviewInfo);
+                Task<Void> flow = manager.launchReviewFlow(MainActivity.this, reviewInfo);
                 flow.addOnCompleteListener(task1 -> {
                     // The flow has finished. The API does not indicate whether the user
                     // reviewed or not, or even whether the review dialog was shown.
                 });
-            }
+            } else
+                Log.e("reviewDialog: ", Objects.requireNonNull(task.getException()).getLocalizedMessage());
         });
     }
 
@@ -197,17 +199,20 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     protected void onResume() {
         super.onResume();
 
-        isGranted = tinyDB.isGranted();
+        isGranted = sharePreference.isGranted();
 
-        checkPermissions();
-
-//        getSupportFragmentManager().beginTransaction().replace(R.id.mini_card, new MiniPlayerFragment()).commit();
+        if (!permissionChecker.areAllPermissionsGranted()) {
+            checkPermissions();
+        } else {
+            binding.permission.setVisibility(View.GONE);
+            readFile();
+        }
 
         binding.permission.setOnClickListener(view -> {
-            requestPermission();
+            permissionChecker.requestPermission();
         });
 
-        if (tinyDB.getTimesOpen() >= 3)
+        if (sharePreference.getTimesOpen() >= 3)
             reviewDialog();
 
         binding.chipGroupMain.setOnCheckedChangeListener((group, checkedId) -> {
@@ -238,20 +243,8 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
                 SPAN_COUNT = 2;
                 ISGRIDVIEW = true;
             }
-            fragmentManager.findFragmentById(binding.container.getId()).onResume();
+            Objects.requireNonNull(fragmentManager.findFragmentById(binding.container.getId())).onResume();
             binding.btnView.invalidate();
-          /*  if (fragmentNo == 0){
-                checkedRecently();
-            }
-            if (fragmentNo == 1){
-                checkedAlbum();
-            }
-            if (fragmentNo == 2){
-                checkedPlaylist();
-            }
-            if (fragmentNo == 3){
-                checkedArtist();
-            }*/
         });
 
         new Thread(() -> {
@@ -275,8 +268,8 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         mAppUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE /*IMMEDIATE*/)) {
                 try {
-                    openUpdateView();
-                    mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE /*IMMEDIATE*/, (Activity) getApplicationContext(), RC_APP_UPDATE);
+//                    openUpdateView();
+                    mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE /*IMMEDIATE*/, MainActivity.this, RC_APP_UPDATE);
                 } catch (IntentSender.SendIntentException e) {
                     e.printStackTrace();
                 }
@@ -349,69 +342,36 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults.length > 0){
+            if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    binding.permission.setVisibility(View.GONE);
+                    readFile();
+                } else {
+                    binding.permission.setVisibility(View.VISIBLE);
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                binding.permission.setVisibility(View.GONE);
-                readFile();
-                tinyDB.setGranted(true);
-                isGranted = true;
-            } else {
-                binding.permission.setVisibility(View.VISIBLE);
-                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void requestPermission() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_AUDIO)) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_PHONE_STATE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-            } else {
-                // Permission has been permanently denied, open app settings
-                openAppPermissionSettings();
-            }
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // Permission has been denied once but not permanently
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
-                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-            } else {
-                // Permission has been permanently denied, open app settings
-                openAppPermissionSettings();
-            }
-        }
-    }
-
-    private void openAppPermissionSettings() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        startActivity(intent);
     }
 
     private void checkPermissions() {
-        if (!isGranted) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED)
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_PHONE_STATE, Manifest.permission.MEDIA_CONTENT_CONTROL}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-            } else {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
-                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-            }
-        } else {
-            readFile();
-        }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.MEDIA_CONTENT_CONTROL}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        }
     }
 
     private void readFile() {
-        fragmentManager.beginTransaction().add(R.id.container, new RecentlyFragment()).commit();
+        fragmentManager.beginTransaction().replace(R.id.container, new RecentlyFragment()).commit();
     }
 
     private void searchSongs(String s) {

@@ -21,14 +21,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class TinyDB {
+public class SharePreference {
 
     private Context context;
     private SharedPreferences preferences;
     private String DEFAULT_APP_IMAGEDATA_DIRECTORY;
     private String lastImagePath = "";
 
-    public TinyDB(Context appContext) {
+    public SharePreference(Context appContext) {
         preferences = PreferenceManager.getDefaultSharedPreferences(appContext);
         context = appContext;
     }
@@ -602,4 +602,10 @@ public class TinyDB {
         preferences.edit().putBoolean("permission", value).apply();
     }
 
+    public boolean isFirstRun() {
+        return preferences.getBoolean("isFirstRun", true);
+    }
+    public void setFirstRun(boolean isFalse) {
+        putBoolean("isFirstRun", isFalse);
+    }
 }

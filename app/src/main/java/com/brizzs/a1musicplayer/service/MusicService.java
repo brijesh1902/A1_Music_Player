@@ -3,12 +3,6 @@ package com.brizzs.a1musicplayer.service;
 import static android.app.Notification.CATEGORY_CALL;
 import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
 import static androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC;
-import static com.brizzs.a1musicplayer.utils.MyApplication.CHANNEL;
-import static com.brizzs.a1musicplayer.utils.MyApplication.NEXT;
-import static com.brizzs.a1musicplayer.utils.MyApplication.PAUSE;
-import static com.brizzs.a1musicplayer.utils.MyApplication.PLAY;
-import static com.brizzs.a1musicplayer.utils.MyApplication.PREVIOUS;
-import static com.brizzs.a1musicplayer.utils.MyApplication.REMOVE;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songsList;
 import static com.brizzs.a1musicplayer.utils.Common.ARTIST;
 import static com.brizzs.a1musicplayer.utils.Common.IMAGE;
@@ -22,6 +16,12 @@ import static com.brizzs.a1musicplayer.utils.Common.actionName;
 import static com.brizzs.a1musicplayer.utils.Common.current_list;
 import static com.brizzs.a1musicplayer.utils.Common.duration;
 import static com.brizzs.a1musicplayer.utils.Common.servicePosition;
+import static com.brizzs.a1musicplayer.utils.MyApplication.CHANNEL;
+import static com.brizzs.a1musicplayer.utils.MyApplication.NEXT;
+import static com.brizzs.a1musicplayer.utils.MyApplication.PAUSE;
+import static com.brizzs.a1musicplayer.utils.MyApplication.PLAY;
+import static com.brizzs.a1musicplayer.utils.MyApplication.PREVIOUS;
+import static com.brizzs.a1musicplayer.utils.MyApplication.REMOVE;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -45,7 +45,6 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,12 +52,11 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.session.MediaButtonReceiver;
 
-import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.R;
+import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.ui.playing.FullScreenActivity;
 import com.brizzs.a1musicplayer.ui.playing.PlayActivity;
-import com.brizzs.a1musicplayer.utils.TinyDB;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.brizzs.a1musicplayer.utils.SharePreference;
 
 import java.io.FileNotFoundException;
 import java.io.Serializable;
@@ -74,7 +72,7 @@ public class MusicService extends Service {
     MediaSessionCompat mediaSessionCompat;
     MediaSession mediaSession;
     Notification notification = null;
-    TinyDB tinyDB;
+    SharePreference sharePreference;
     SharedPreferences.Editor editor;
     PendingIntent prevPending, playPending, nextPending, removePending, replayPending, forwardPending, pendingIntent, fullScreenPendingIntent;
     private MediaController mController;
@@ -96,7 +94,7 @@ public class MusicService extends Service {
 
         mediaSession = new MediaSession(getApplicationContext(), "MyPlayer");
         mediaSessionCompat = new MediaSessionCompat(getApplicationContext(), "MyPlayer");
-        tinyDB = new TinyDB(getApplicationContext());
+        sharePreference = new SharePreference(getApplicationContext());
         editor = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE).edit();
 
         mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS | MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -371,6 +369,10 @@ public class MusicService extends Service {
         String name = songsList.get(PlayActivity.position).getName();
         String artist = songsList.get(PlayActivity.position).getArtist();
 
+        PlaybackStateCompat.Builder playbackStateBuilder = new PlaybackStateCompat.Builder();
+
+        PlaybackStateCompat.CustomAction customAction = new PlaybackStateCompat.CustomAction.Builder("ID", "Play_Pause", play_pause).build();
+        playbackStateBuilder.addCustomAction(customAction);
 
         if (mediaPlayer.isPlaying()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

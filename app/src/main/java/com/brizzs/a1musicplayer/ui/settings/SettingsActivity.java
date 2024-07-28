@@ -2,8 +2,6 @@ package com.brizzs.a1musicplayer.ui.settings;
 
 import static com.brizzs.a1musicplayer.utils.Common.appInstalledOrNot;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,6 +9,8 @@ import android.os.Bundle;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.brizzs.a1musicplayer.BuildConfig;
 import com.brizzs.a1musicplayer.R;
@@ -87,4 +87,5 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     }
+
 }

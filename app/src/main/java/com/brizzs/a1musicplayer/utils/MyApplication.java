@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.os.StrictMode;
 
+import com.brizzs.a1musicplayer.BuildConfig;
 import com.brizzs.a1musicplayer.ads.AppOpenManager;
 import com.brizzs.a1musicplayer.dao.AlbumDao;
 import com.brizzs.a1musicplayer.dao.ArtistDao;
@@ -32,6 +33,14 @@ public class MyApplication extends Application {
     private PlayListDao playListDao;
     private AlbumDao albumDao;
     private ArtistDao artistDao;
+    private static SharePreference sharePreference;
+
+    public static SharePreference getSharePreference(){
+        if (sharePreference == null)
+            sharePreference = new SharePreference(getInstance());
+        return sharePreference;
+    }
+
 
     public AlbumDao getAlbumDao(){
         if (albumDao == null){
@@ -86,8 +95,10 @@ public class MyApplication extends Application {
             notificationManager.createNotificationChannel(channel);
         }
 
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
+        if (BuildConfig.DEBUG) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+        }
 
 
     }

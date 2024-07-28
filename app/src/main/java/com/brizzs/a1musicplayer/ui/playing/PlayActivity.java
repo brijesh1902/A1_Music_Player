@@ -51,8 +51,7 @@ import com.brizzs.a1musicplayer.dao.SongsDao;
 import com.brizzs.a1musicplayer.db.SongsDB;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
-import com.brizzs.a1musicplayer.ui.main.MainActivity;
-import com.brizzs.a1musicplayer.utils.TinyDB;
+import com.brizzs.a1musicplayer.utils.SharePreference;
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.databinding.ActivityPlayBinding;
@@ -75,7 +74,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     SeekBar seekBar;
     public static int position, delay = 500, maxVolume, volume;
     final Handler handler = new Handler();
-    TinyDB tinyDB;
+    SharePreference sharePreference;
     public static ArrayList<Songs> songsList = new ArrayList<>();
     ArrayList<Songs> list = new ArrayList<>();
     Thread updateSeek;
@@ -123,7 +122,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
 
         animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_item);
         preferences = getSharedPreferences(MUSIC_PLAYED, MODE_PRIVATE);
-        tinyDB = new TinyDB(getApplicationContext());
+        sharePreference = new SharePreference(getApplicationContext());
 
         isService = isServiceRunning(MusicService.class.getName(), getApplicationContext());
 

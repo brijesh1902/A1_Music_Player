@@ -1,16 +1,15 @@
-package com.brizzs.a1musicplayer.ui.mini;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.brizzs.a1musicplayer.ui.splash;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.brizzs.a1musicplayer.databinding.ActivitySplashBinding;
 import com.brizzs.a1musicplayer.ui.main.MainActivity;
+import com.brizzs.a1musicplayer.utils.MyApplication;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -36,9 +35,12 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startActivity() {
-
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            if (MyApplication.getSharePreference().isFirstRun()){
+                startActivity(new Intent(getApplicationContext(), OnBoardingActivity.class));
+            } else {
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            }
             finish();
         }, 1200);
     }
