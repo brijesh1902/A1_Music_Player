@@ -19,7 +19,10 @@ import static com.brizzs.a1musicplayer.utils.Const.SONG_NAME;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -51,6 +54,7 @@ import com.brizzs.a1musicplayer.dao.SongsDao;
 import com.brizzs.a1musicplayer.db.SongsDB;
 import com.brizzs.a1musicplayer.model.Album;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
+import com.brizzs.a1musicplayer.ui.main.MainActivity;
 import com.brizzs.a1musicplayer.utils.SharePreference;
 import com.brizzs.a1musicplayer.model.Songs;
 import com.brizzs.a1musicplayer.R;
@@ -90,6 +94,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     GridLayoutManager layoutManager;
     private SongsDao songsDao;
 
+    @SuppressLint("GestureBackNavigation")
     @Override
     public void onBackPressed() {
         if (isPlayListOpen) {
@@ -98,7 +103,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
             binding.materialCardView5.setVisibility(View.VISIBLE);
             binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
         } else {
-//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             super.onBackPressed();
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             supportFinishAfterTransition();
@@ -111,6 +116,18 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         super.onCreate(savedInstanceState);
         binding = ActivityPlayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Look for and REMOVE or comment out this block:
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            // This code typically applies padding equal to the system bar height
+            // to prevent content from going behind the bars.
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+            // Removing the logic that sets padding here will also help disable the effect.
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+            return insets;
+        });
 
         name = findViewById(R.id.p_name);
         singer = findViewById(R.id.p_artist);
@@ -234,17 +251,18 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
         checkFavourites();
 
         binding.back.setOnClickListener(v -> {
-            v.startAnimation(animation);
-            if (isPlayListOpen) {
-                isPlayListOpen = false;
-                binding.rvPlaylist.setVisibility(View.GONE);
-                binding.materialCardView5.setVisibility(View.VISIBLE);
-                binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
-            } else {
+//            v.startAnimation(animation);
+//            if (isPlayListOpen) {
+//                isPlayListOpen = false;
+//                binding.rvPlaylist.setVisibility(View.GONE);
+//                binding.materialCardView5.setVisibility(View.VISIBLE);
+//                binding.playlist.setBackgroundResource(R.drawable.ic_playlist_play_24);
+//            } else {
 //                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                supportFinishAfterTransition();
-            }
+//                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//                supportFinishAfterTransition();
+//            }
+            onBackPressed();
         });
 
         binding.playlist.setOnClickListener(v -> {
@@ -345,7 +363,7 @@ public class PlayActivity extends AppCompatActivity implements ActionPlaying, Se
     }
 
     private void checkFavourites() {
-        songsDao.getSongs().observe(this, songs -> {
+        songsDao.getSongs().observe(PlayActivity.this, songs -> {
             if (songs.size() > 0) {
                 for (Songs s : songs) {
                     if (s.getName().equals(songsList.get(position).getName())) {

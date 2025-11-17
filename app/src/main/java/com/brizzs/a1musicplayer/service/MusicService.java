@@ -1,6 +1,7 @@
 package com.brizzs.a1musicplayer.service;
 
 import static android.app.Notification.CATEGORY_CALL;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK;
 import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
 import static androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC;
 import static com.brizzs.a1musicplayer.ui.playing.PlayActivity.songsList;
@@ -45,6 +46,7 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -141,10 +143,12 @@ public class MusicService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.e("TAG", "onDestroy: " );
         mController.unregisterCallback(mCb);
+        actionPlaying.play_pauseClicked();
+        actionPlaying.removeClicked();
         stopForeground(true);
         stopSelf();
-        actionPlaying.removeClicked();
         super.onDestroy();
     }
 
@@ -185,7 +189,8 @@ public class MusicService extends Service {
             new Handler().post(this::onCompleted);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("TAG", "onStartCommand: "+e.getLocalizedMessage() );
+
         }
 
         return START_STICKY;
@@ -347,7 +352,7 @@ public class MusicService extends Service {
 
 
         Intent fullScreenIntent = new Intent(new Intent(this, FullScreenActivity.class));
-        fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_NO_CREATE);
 
         String picture = songsList.get(PlayActivity.position).getImage();
         Bitmap thumbnail;
@@ -387,9 +392,9 @@ public class MusicService extends Service {
                         .addAction(play_pause, PLAY, playPending)
                         .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                         .setContentIntent(pendingIntent)
-//                        .setStyle(new Notification.MediaStyle())
+                        .setStyle(new Notification.MediaStyle())
                         .setStyle(new Notification.MediaStyle()
-//                                .setShowActionsInCompactView(0, 1, 2)
+                                .setShowActionsInCompactView(0, 1, 2)
                                 .setMediaSession(mediaSession.getSessionToken()))
                         .setShowWhen(true)
                         .setFullScreenIntent(fullScreenPendingIntent, true)
@@ -416,9 +421,9 @@ public class MusicService extends Service {
                         .addAction(R.drawable.ic_skip_next_24, NEXT, nextPending)
                         .addAction(R.drawable.ic_close_24, REMOVE, removePending)
                         .setContentIntent(pendingIntent)
-//                        .setStyle(new Notification.MediaStyle())
+                        .setStyle(new Notification.MediaStyle())
                         .setStyle(new Notification.MediaStyle()
-//                                .setShowActionsInCompactView(0, 1, 2)
+                                .setShowActionsInCompactView(0, 1, 2)
                                 .setMediaSession(mediaSession.getSessionToken()))
                         .setFullScreenIntent(fullScreenPendingIntent, true)
                         .setShowWhen(true)
@@ -435,7 +440,11 @@ public class MusicService extends Service {
             }
         }
 
-        startForeground(11, notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(11, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        } else {
+            startForeground(11, notification);
+        }
     }
 
     private void belowOreoRemove(String name, String artist, Bitmap thumbnail, int play_pause) {

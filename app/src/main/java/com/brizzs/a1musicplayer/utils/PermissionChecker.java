@@ -16,35 +16,21 @@ import com.brizzs.a1musicplayer.ui.main.MainActivity;
 public class PermissionChecker {
 
     MainActivity context;
-    String[] permissions_12 = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE};
-    String[] permissions_13 = {Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_PHONE_STATE};
+    private final String[] permissions_12 = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE};
+    private final String[] permissions_13 = {Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_PHONE_STATE};
 
     public PermissionChecker(MainActivity activity) {
         this.context = activity;
     }
 
-    public void checkAndRequestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale( context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    // Permission has been denied once but not permanently
-                    showPermissionExplanationDialog();
-                } else {
-                    // Permission has been permanently denied, open app settings
-                    openAppPermissionSettings();
-                }
-            } else {
-                // Permission is granted
-                performAction();
-            }
-        } else {
-            // Permission is granted (pre-Marshmallow)
-            performAction();
-        }
-    }
-
     private void performAction() {
         // Proceed with the action that requires permission
+        if (ActivityCompat.shouldShowRequestPermissionRationale(context, Manifest.permission.POST_NOTIFICATIONS)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.USE_FULL_SCREEN_INTENT}, 100);
+            }
+        }
     }
 
     private void showPermissionExplanationDialog() {
@@ -63,17 +49,17 @@ public class PermissionChecker {
 
     public void requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale( context, Manifest.permission.READ_MEDIA_AUDIO)) {
-                ActivityCompat.requestPermissions( context, new String[]{Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_PHONE_STATE}, 100);
+            if (ActivityCompat.shouldShowRequestPermissionRationale(context, Manifest.permission.READ_MEDIA_AUDIO)) {
+                ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.USE_FULL_SCREEN_INTENT}, 100);
             } else {
                 // Permission has been permanently denied, open app settings
                 openAppPermissionSettings();
             }
         } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale( context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 // Permission has been denied once but not permanently
-                ActivityCompat.requestPermissions( context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
+                ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
                         100);
             } else {
                 // Permission has been permanently denied, open app settings
@@ -106,7 +92,7 @@ public class PermissionChecker {
                 // Permission granted, perform the action
                 performAction();
             } else {
-                if (!ActivityCompat.shouldShowRequestPermissionRationale( context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     // Permission permanently denied, open app settings
                     openAppPermissionSettings();
                 } else {

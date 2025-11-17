@@ -40,7 +40,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -106,6 +109,18 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         fragmentManager = getSupportFragmentManager();
         setContentView(binding.getRoot());
+
+        // Look for and REMOVE or comment out this block:
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            // This code typically applies padding equal to the system bar height
+            // to prevent content from going behind the bars.
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+            // Removing the logic that sets padding here will also help disable the effect.
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+            return insets;
+        });
 
         permissionChecker = new PermissionChecker(this);
         sharePreference = new SharePreference(getApplicationContext());
@@ -362,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.MEDIA_CONTENT_CONTROL}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.MEDIA_CONTENT_CONTROL, Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.USE_FULL_SCREEN_INTENT}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
@@ -371,6 +386,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
     }
 
     private void readFile() {
+        Log.e(TAG, "readFile: ");
         fragmentManager.beginTransaction().replace(R.id.container, new RecentlyFragment()).commit();
     }
 
@@ -390,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements OnSongAdapterCall
         }
     }
 
+    @SuppressLint("GestureBackNavigation")
     @Override
     public void onBackPressed() {
         super.onBackPressed();
