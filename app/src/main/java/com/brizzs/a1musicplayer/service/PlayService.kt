@@ -1,28 +1,19 @@
-package com.brizzs.a1musicplayer.service;
+package com.brizzs.a1musicplayer.service
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+import com.google.android.exoplayer2.ExoPlayer
 
-import androidx.annotation.Nullable;
+class PlayService : Service() {
+    lateinit var exoPlayer: ExoPlayer
 
-import com.google.android.exoplayer2.ExoPlayer;
-
-public class PlayService extends Service {
-
-    ExoPlayer exoPlayer;
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        exoPlayer = new ExoPlayer.Builder(this).build();
-
+    override fun onCreate() {
+        super.onCreate()
+        exoPlayer = ExoPlayer.Builder(this).build()
     }
 }

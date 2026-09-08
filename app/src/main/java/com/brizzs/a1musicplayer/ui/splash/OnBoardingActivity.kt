@@ -1,179 +1,173 @@
-package com.brizzs.a1musicplayer.ui.splash;
+package com.brizzs.a1musicplayer.ui.splash
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.content.Intent
+import android.os.Bundle
+import android.widget.ImageView
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.brizzs.a1musicplayer.R
+import com.brizzs.a1musicplayer.ui.main.MainActivity
+import com.brizzs.a1musicplayer.utils.MyApplication
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import kotlinx.coroutines.launch
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
+class OnBoardingActivity : AppCompatActivity() {
 
-import com.brizzs.a1musicplayer.R;
-import com.brizzs.a1musicplayer.databinding.ActivityOnBoardingBinding;
-import com.brizzs.a1musicplayer.databinding.ViewOnboardScreenBinding;
-import com.brizzs.a1musicplayer.model.DataModel;
-import com.brizzs.a1musicplayer.ui.main.MainActivity;
-import com.brizzs.a1musicplayer.utils.MyApplication;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
+    @OptIn(ExperimentalFoundationApi::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            val pages = listOf(
+                Triple(R.drawable.img_onboard1, getString(R.string.title_1), getString(R.string.desc_1)),
+                Triple(R.drawable.img_onboard2, getString(R.string.title_2), getString(R.string.desc_2)),
+                Triple(R.drawable.img_onboard3, getString(R.string.title_3), getString(R.string.desc_3))
+            )
+            val pagerState = rememberPagerState(pageCount = { pages.size })
+            val coroutineScope = rememberCoroutineScope()
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF6200EE)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    AndroidView(
+                        factory = { ctx ->
+                            ImageView(ctx).apply {
+                                scaleType = ImageView.ScaleType.CENTER_CROP
+                            }
+                        },
+                        update = { imageView ->
+                            Glide.with(imageView.context)
+                                .load(R.drawable.background_onboard)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .into(imageView)
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
 
-public class OnBoardingActivity extends AppCompatActivity {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AndroidView(
+                                factory = { ctx ->
+                                    ImageView(ctx).apply {
+                                        scaleType = ImageView.ScaleType.FIT_CENTER
+                                    }
+                                },
+                                update = { imageView ->
+                                    Glide.with(imageView.context)
+                                        .load(pages[page].first)
+                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                        .into(imageView)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(0.8f)
+                            )
+                        }
+                    }
+                }
 
-    ActivityOnBoardingBinding binding;
-    OnBoardingAdapter adapter;
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        repeat(pages.size) { index ->
+                            val color = if (pagerState.currentPage == index) Color.White else Color.White.copy(alpha = 0.5f)
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(color, shape = CircleShape)
+                            )
+                        }
+                    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_on_boarding);
+                    Text(
+                        text = pages[pagerState.currentPage].second,
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 4.dp)
+                    )
 
-        // Look for and REMOVE or comment out this block:
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            // This code typically applies padding equal to the system bar height
-            // to prevent content from going behind the bars.
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            // Removing the logic that sets padding here will also help disable the effect.
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+                    Text(
+                        text = pages[pagerState.currentPage].third,
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(0.6f)
+                            .padding(horizontal = 24.dp, vertical = 4.dp)
+                    )
 
-        adapter = new OnBoardingAdapter();
-        adapter.submitList(getBoardList());
-        binding.viewPager.setAdapter(adapter);
+                    Spacer(modifier = Modifier.height(16.dp))
 
-        setOnBoardingIndicator();
-        setCurrentOnBoardingIndicators(0);
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                setCurrentOnBoardingIndicators(position);
+                    FloatingActionButton(
+                        onClick = {
+                            if (pagerState.currentPage + 1 < pages.size) {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                }
+                            } else {
+                                MyApplication.getSharePreference().isFirstRun = false
+                                startActivity(Intent(applicationContext, MainActivity::class.java))
+                                finish()
+                            }
+                        },
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF6200EE),
+                        shape = CircleShape
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_play_24),
+                            contentDescription = "Next",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
             }
-        });
-
-        binding.btnNext.setOnClickListener(view -> {
-            if (binding.viewPager.getCurrentItem() + 1 < adapter.getItemCount()) {
-                binding.viewPager.setCurrentItem(binding.viewPager.getCurrentItem() + 1);
-            } else {
-                MyApplication.getSharePreference().setFirstRun(false);
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                finish();
-            }
-        });
-
-    }
-
-    private void setOnBoardingIndicator() {
-        ImageView[] indicators = new ImageView[adapter.getItemCount()];
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(8, 0, 8, 0);
-        for (int i = 0; i < indicators.length; i++) {
-            indicators[i] = new ImageView(getApplicationContext());
-            indicators[i].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_dot));
-            indicators[i].setLayoutParams(layoutParams);
-            binding.dotsLayout.addView(indicators[i]);
         }
     }
-
-    @SuppressLint("SetTextI18n")
-    private void setCurrentOnBoardingIndicators(int index) {
-        int childCount = binding.dotsLayout.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            ImageView imageView = (ImageView) binding.dotsLayout.getChildAt(i);
-            if (i == index) {
-                imageView.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_dot_selected));
-            } else {
-                imageView.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_dot));
-            }
-        }
-
-        binding.title.setText(getBoardList().get(index).getTitle());
-        binding.desc.setText(getBoardList().get(index).getDescription());
-
-    }
-
-    private List<DataModel> getBoardList() {
-        List<DataModel> list = new ArrayList<>();
-
-
-        list.add(new DataModel(getString(R.string.title_1), getString(R.string.desc_1), R.drawable.img_onboard1));
-        list.add(new DataModel(getString(R.string.title_2), getString(R.string.desc_2), R.drawable.img_onboard2));
-        list.add(new DataModel(getString(R.string.title_3), getString(R.string.desc_3), R.drawable.img_onboard3));
-
-        return list;
-    }
-
-    private class OnBoardingAdapter extends ListAdapter<DataModel, OnBoardingAdapter.ViewHolder> {
-
-        public OnBoardingAdapter() {
-            super(diffCallback);
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ViewOnboardScreenBinding binding = ViewOnboardScreenBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-            return new ViewHolder(binding);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            DataModel model = getItem(position);
-
-            Glide.with(holder.itemView.getContext()).load(model.getImage()).diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.binding.image);
-
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            ViewOnboardScreenBinding binding;
-
-            public ViewHolder(@NonNull ViewOnboardScreenBinding itemView) {
-                super(itemView.getRoot());
-                binding = itemView;
-            }
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-    }
-
-    DiffUtil.ItemCallback<DataModel> diffCallback = new DiffUtil.ItemCallback<DataModel>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull DataModel oldItem, @NonNull DataModel newItem) {
-            return Objects.equals(oldItem.getTitle(), newItem.getTitle());
-        }
-
-        @Override
-        public boolean areContentsTheSame(@NonNull DataModel oldItem, @NonNull DataModel newItem) {
-            return Objects.equals(oldItem, newItem);
-        }
-    };
-
 }

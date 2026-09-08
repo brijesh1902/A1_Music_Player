@@ -1,35 +1,37 @@
-package com.brizzs.a1musicplayer.db;
+package com.brizzs.a1musicplayer.db
 
-import android.content.Context;
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import com.brizzs.a1musicplayer.dao.SongsDao
+import com.brizzs.a1musicplayer.model.Songs
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
+@Database(entities = [Songs::class], version = 1, exportSchema = false)
+abstract class SongsDB : RoomDatabase() {
+    abstract fun songsDao(): SongsDao
 
-import com.brizzs.a1musicplayer.dao.SongsDao;
-import com.brizzs.a1musicplayer.model.Songs;
+    companion object {
+        private const val NO_OF_THREADS = 10
+        @JvmField
+        var databaseWriteExecutor: ExecutorService = Executors.newFixedThreadPool(NO_OF_THREADS)
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+        @Volatile
+        private var instance: SongsDB? = null
 
-@Database(entities = {Songs.class}, version = 1, exportSchema = false)
-public abstract class SongsDB extends RoomDatabase {
-
-    public abstract SongsDao songsDao();
-
-    private static final int NO_OF_THREADS = 10;
-    private static SongsDB instance;
-
-    public static ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NO_OF_THREADS);
-
-    public static synchronized SongsDB getDatabase(Context context) {
-        if (instance == null) {
-            instance = Room.databaseBuilder(context.getApplicationContext(),
-                    SongsDB.class, "songs_db")
+        @JvmStatic
+        fun getDatabase(context: Context): SongsDB {
+            return instance ?: synchronized(this) {
+                instance ?: Room.databaseBuilder(
+                    context.applicationContext,
+                    SongsDB::class.java, "songs_db"
+                )
                     .fallbackToDestructiveMigration()
-                    .build();
+                    .build()
+                    .also { instance = it }
+            }
         }
-        return instance;
     }
-
 }

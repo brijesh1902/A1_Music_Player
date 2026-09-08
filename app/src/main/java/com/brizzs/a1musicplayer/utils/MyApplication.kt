@@ -1,106 +1,106 @@
-package com.brizzs.a1musicplayer.utils;
+package com.brizzs.a1musicplayer.utils
 
-import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.os.Build;
-import android.os.StrictMode;
+import android.app.Application
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+import android.os.StrictMode
+import com.brizz.linguistic.LanguageSDK
+import com.brizz.linguistic.LingualSDK
+import com.brizzs.a1musicplayer.BuildConfig
+import com.brizzs.a1musicplayer.R
+import com.brizzs.a1musicplayer.ads.AppOpenManager
+import com.brizzs.a1musicplayer.dao.AlbumDao
+import com.brizzs.a1musicplayer.dao.ArtistDao
+import com.brizzs.a1musicplayer.dao.PlayListDao
+import com.brizzs.a1musicplayer.db.AlbumDB
+import com.brizzs.a1musicplayer.db.ArtistDB
+import com.brizzs.a1musicplayer.db.PlayListDB
 
-import com.brizzs.a1musicplayer.BuildConfig;
-import com.brizzs.a1musicplayer.ads.AppOpenManager;
-import com.brizzs.a1musicplayer.dao.AlbumDao;
-import com.brizzs.a1musicplayer.dao.ArtistDao;
-import com.brizzs.a1musicplayer.dao.PlayListDao;
-import com.brizzs.a1musicplayer.db.AlbumDB;
-import com.brizzs.a1musicplayer.db.ArtistDB;
-import com.brizzs.a1musicplayer.db.PlayListDB;
+class MyApplication : Application() {
 
-public class MyApplication extends Application {
+    private var playListDao: PlayListDao? = null
+    private var albumDao: AlbumDao? = null
+    private var artistDao: ArtistDao? = null
+    var appOpenManager: AppOpenManager? = null
 
-    public static final String CHANNEL = "A1 Musics";
-    public static final String DESCRIPTION = "Music Player";
-    public static final String PREVIOUS = "PREVIOUS";
-    public static final String NEXT = "NEXT";
-    public static final String PLAY = "PLAY";
-    public static final String PAUSE = "PAUSE";
-    public static final String REPLAY_10 = "REPLAY_10";
-    public static final String FORWARD_10 = "FORWARD_10";
-    public static final String REMOVE = "REMOVE";
-    public static final String NAME = "PLAYER";
-
-    private static MyApplication instance;
-    private PlayListDao playListDao;
-    private AlbumDao albumDao;
-    private ArtistDao artistDao;
-    private static SharePreference sharePreference;
-
-    public static SharePreference getSharePreference(){
-        if (sharePreference == null)
-            sharePreference = new SharePreference(getInstance());
-        return sharePreference;
-    }
-
-
-    public AlbumDao getAlbumDao(){
-        if (albumDao == null){
-            AlbumDB db = AlbumDB.getInstance(getApplicationContext());
-            albumDao = db.albumDao();
+    fun getAlbumDao(): AlbumDao {
+        if (albumDao == null) {
+            val db = AlbumDB.getInstance(applicationContext)
+            albumDao = db.albumDao()
         }
-        return albumDao;
+        return albumDao!!
     }
 
-    public ArtistDao getArtistDao(){
-        if (artistDao == null){
-            ArtistDB db = ArtistDB.getInstance(getApplicationContext());
-            artistDao = db.artistDao();
+    fun getArtistDao(): ArtistDao {
+        if (artistDao == null) {
+            val db = ArtistDB.getInstance(applicationContext)
+            artistDao = db.artistDao()
         }
-        return artistDao;
+        return artistDao!!
     }
 
-    public PlayListDao getPlayListDao(){
-        if (playListDao == null){
-            PlayListDB db = PlayListDB.getInstance(getApplicationContext());
-            playListDao = db.playListDao();
+    fun getPlayListDao(): PlayListDao {
+        if (playListDao == null) {
+            val db = PlayListDB.getInstance(applicationContext)
+            playListDao = db.playListDao()
         }
-        return playListDao;
+        return playListDao!!
     }
 
-    public static MyApplication getInstance(){
-        return instance;
-    }
+    override fun onCreate() {
+        super.onCreate()
+        instanceVal = this
 
-    AppOpenManager appOpenManager;
+        LingualSDK.init(this, R.string::class.java.fields)
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        instance = this;
-
-//        MobileAds.initialize(this, initializationStatus -> {});
-//        appOpenManager = new AppOpenManager(this);
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL, NAME, NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription(DESCRIPTION);
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                channel.setAllowBubbles(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL, NAME, NotificationManager.IMPORTANCE_HIGH).apply {
+                description = DESCRIPTION
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    setAllowBubbles(true)
+                }
+                importance = NotificationManager.IMPORTANCE_HIGH
+                enableVibration(false)
             }
-            channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
-            channel.enableVibration(false);
 
-            NotificationManager notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager?.createNotificationChannel(channel)
         }
 
         if (BuildConfig.DEBUG) {
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
+            val builder = StrictMode.VmPolicy.Builder()
+            StrictMode.setVmPolicy(builder.build())
         }
-
-
     }
 
+    companion object {
+        const val CHANNEL = "A1 Musics"
+        const val DESCRIPTION = "Music Player"
+        const val PREVIOUS = "PREVIOUS"
+        const val NEXT = "NEXT"
+        const val PLAY = "PLAY"
+        const val PAUSE = "PAUSE"
+        const val REPLAY_10 = "REPLAY_10"
+        const val FORWARD_10 = "FORWARD_10"
+        const val REMOVE = "REMOVE"
+        const val NAME = "PLAYER"
+
+        private lateinit var instanceVal: MyApplication
+
+        private var sharePreference: SharePreference? = null
+
+        @JvmStatic
+        fun getInstance(): MyApplication = instanceVal
+
+        @JvmStatic
+        fun getSharePreference(): SharePreference {
+            if (sharePreference == null) {
+                sharePreference = SharePreference(getInstance())
+            }
+            return sharePreference!!
+        }
+    }
 }

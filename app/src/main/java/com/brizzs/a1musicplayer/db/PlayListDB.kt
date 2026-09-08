@@ -1,35 +1,37 @@
-package com.brizzs.a1musicplayer.db;
+package com.brizzs.a1musicplayer.db
 
-import android.content.Context;
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import com.brizzs.a1musicplayer.dao.PlayListDao
+import com.brizzs.a1musicplayer.model.PlayList
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
+@Database(entities = [PlayList::class], version = 1, exportSchema = false)
+abstract class PlayListDB : RoomDatabase() {
+    abstract fun playListDao(): PlayListDao
 
-import com.brizzs.a1musicplayer.dao.PlayListDao;
-import com.brizzs.a1musicplayer.model.PlayList;
+    companion object {
+        private const val NO_OF_THREADS = 10
+        @JvmField
+        var playlistWriteExecutor: ExecutorService = Executors.newFixedThreadPool(NO_OF_THREADS)
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+        @Volatile
+        private var instance: PlayListDB? = null
 
-@Database(entities = {PlayList.class}, version = 1, exportSchema = false)
-public abstract class PlayListDB extends RoomDatabase {
-
-    private static final int NO_OF_THREADS = 10;
-    private static volatile PlayListDB instance;
-
-    public abstract PlayListDao playListDao();
-
-    public static ExecutorService playlistWriteExecutor = Executors.newFixedThreadPool(NO_OF_THREADS);
-
-    public static synchronized PlayListDB getInstance(Context context) {
-        if (instance == null) {
-            instance = Room.databaseBuilder(context.getApplicationContext(),
-                    PlayListDB.class, "playlist_db")
+        @JvmStatic
+        fun getInstance(context: Context): PlayListDB {
+            return instance ?: synchronized(this) {
+                instance ?: Room.databaseBuilder(
+                    context.applicationContext,
+                    PlayListDB::class.java, "playlist_db"
+                )
                     .fallbackToDestructiveMigration()
-                    .build();
+                    .build()
+                    .also { instance = it }
+            }
         }
-        return instance;
     }
-
 }

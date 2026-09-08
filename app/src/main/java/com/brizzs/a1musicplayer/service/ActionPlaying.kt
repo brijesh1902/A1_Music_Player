@@ -1,13 +1,8 @@
-package com.brizzs.a1musicplayer.service;
+package com.brizzs.a1musicplayer.service
 
-public interface ActionPlaying {
-
-    void play_pauseClicked();
-
-    void nextClicked();
-
-    void previousClicked();
-
-    void removeClicked();
-
+interface ActionPlaying {
+    fun play_pauseClicked()
+    fun nextClicked()
+    fun previousClicked()
+    fun removeClicked()
 }

@@ -1,8 +1,8 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {
@@ -13,4 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "A1 Music Player"
-include ':app'
+include(":app")
+include(":linguistic")

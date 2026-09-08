@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.brizzs.a1musicplayer.R;
 import com.brizzs.a1musicplayer.model.PlayList;
 import com.brizzs.a1musicplayer.service.OnSongAdapterCallback;
-import com.brizzs.a1musicplayer.ui.playlist.PlaylistFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 

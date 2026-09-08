@@ -1,78 +1,70 @@
-package com.brizzs.a1musicplayer.ui.album;
+package com.brizzs.a1musicplayer.ui.album
 
-import android.annotation.SuppressLint;
-import android.app.Application;
-import android.content.ContentUris;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.util.Log;
+import android.annotation.SuppressLint
+import android.app.Application
+import android.content.ContentUris
+import android.content.Context
+import android.provider.MediaStore
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.brizzs.a1musicplayer.model.Songs
+import com.brizzs.a1musicplayer.utils.Common
+import java.util.ArrayList
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
-import com.brizzs.a1musicplayer.model.Songs;
-import com.brizzs.a1musicplayer.utils.Common;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class AlbumRepo {
-
-    Context context;
-    private String title, artist, data, date, duration, id, album, key;
-    private List<Songs> list = new ArrayList<>();
-    private MutableLiveData<List<Songs>> liveData = new MutableLiveData<>();
-
-
-    public AlbumRepo(Application application) {
-        context = application;
-    }
+class AlbumRepo(application: Application) {
+    private val context: Context = application
+    private var title: String? = null
+    private var artist: String? = null
+    private var data: String? = null
+    private var date: String? = null
+    private var duration: String? = null
+    private var id: String? = null
+    private var album: String? = null
+    private var key: String? = null
+    private val list = ArrayList<Songs>()
+    private val liveData = MutableLiveData<List<Songs>>()
 
     @SuppressLint("Range")
-    public LiveData<List<Songs>> getSongsAlbum(String k) {
+    fun getSongsAlbum(k: String): LiveData<List<Songs>> {
+        val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val selection = MediaStore.Audio.Media.IS_MUSIC + "!=0"
+        val sortRecently = MediaStore.Audio.Media.DATE_ADDED + ">" + System.currentTimeMillis() / 1000
 
-        Uri[] uri = {MediaStore.Audio.Media.EXTERNAL_CONTENT_URI};
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-        String sortRecently = MediaStore.Audio.Media.DATE_ADDED + ">" + (System.currentTimeMillis() / 1000);
-
-        Cursor cursor = context.getContentResolver().query(uri[0], null, selection, null, sortRecently);
+        val cursor = context.contentResolver.query(uri, null, selection, null, sortRecently)
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-                artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                date = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED));
-                duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                key = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_KEY));
+                title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME))
+                artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
+                data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
+                date = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED))
+                duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+                album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
+                id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID))
+                key = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_KEY))
 
-                Uri uriImage = ContentUris.withAppendedId(Common.alb_Uri, Long.parseLong(id));
+                val uriImage = ContentUris.withAppendedId(Common.alb_Uri, id!!.toLong())
 
-                Songs songs = new Songs();
-                if (data.endsWith(".mp3")) {
-                   if (key.equals(k)) {
-                       songs.setArtist(artist);
-                       songs.setName(title);
-                       songs.setImage(String.valueOf(uriImage));
-                       songs.setData(data);
-                       songs.setDate(date);
-                       songs.setDuration(duration);
-                       songs.setAlbum(album);
-                       songs.setAlbumKey(id);
-
-                       list.add(songs);
-                   }
-                    liveData.setValue(list);
+                if (data != null && data!!.endsWith(".mp3")) {
+                    if (key == k) {
+                        val songs = Songs(
+                            name = title ?: "",
+                            artist = artist,
+                            image = uriImage.toString(),
+                            duration = duration,
+                            data = data,
+                            date = date,
+                            album = album,
+                            albumKey = id
+                        )
+                        list.add(songs)
+                    }
+                    liveData.value = list
                 }
-
-            } while (cursor.moveToNext());
+            } while (cursor.moveToNext())
         }
-        cursor.close();
+        cursor?.close()
 
-        return liveData;
+        return liveData
     }
 }

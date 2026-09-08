@@ -1,31 +1,19 @@
-package com.brizzs.a1musicplayer.ui.playlist;
+package com.brizzs.a1musicplayer.ui.playlist
 
-import android.app.Application;
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import com.brizzs.a1musicplayer.model.Songs
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
+class PlaylistViewModel(application: Application) : AndroidViewModel(application) {
+    private val repo: PlaylistRepo = PlaylistRepo(application)
+    var isAvailable: Boolean = repo.value == 1
 
-import com.brizzs.a1musicplayer.model.Songs;
-
-import java.util.List;
-
-public class PlaylistViewModel extends AndroidViewModel {
-
-    PlaylistRepo repo;
-    boolean isAvailable;
-
-    public PlaylistViewModel(@NonNull Application application) {
-        super(application);
-        repo = new PlaylistRepo(application);
-        isAvailable = repo.value == 1;
+    fun getPlaylists(): LiveData<List<Songs>> {
+        return repo.liveSongs
     }
 
-    LiveData<List<Songs>> getPlaylists(){
-        return repo.liveSongs;
-    }
-
-    public void insertToFavourites(Songs songs) {
-        repo.setToFavourites(songs);
+    fun insertToFavourites(songs: Songs) {
+        repo.setToFavourites(songs)
     }
 }

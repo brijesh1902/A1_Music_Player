@@ -1,27 +1,21 @@
-package com.brizzs.a1musicplayer.dao;
+package com.brizzs.a1musicplayer.dao
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-
-import com.brizzs.a1musicplayer.model.PlayList;
-import com.brizzs.a1musicplayer.model.Songs;
-
-import java.util.List;
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.brizzs.a1musicplayer.model.Songs
 
 @Dao
-public interface SongsDao {
-
+interface SongsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(Songs songs);
+    fun insert(songs: Songs)
 
-    @Query("SELECT * FROM songs")
-    LiveData<List<Songs>> getSongs();
+    @get:Query("SELECT * FROM songs")
+    val songs: LiveData<List<Songs>>
 
     @Delete
-    void delete(Songs songs);
-
+    fun delete(songs: Songs)
 }

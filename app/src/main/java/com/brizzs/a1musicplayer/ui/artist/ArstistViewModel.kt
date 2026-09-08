@@ -1,14 +1,6 @@
-package com.brizzs.a1musicplayer.ui.artist;
+package com.brizzs.a1musicplayer.ui.artist
 
-import android.app.Application;
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-
-public class ArstistViewModel extends AndroidViewModel {
-
-    public ArstistViewModel(@NonNull Application application) {
-        super(application);
-    }
-
-}
+class ArstistViewModel(application: Application) : AndroidViewModel(application)
