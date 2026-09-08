@@ -145,7 +145,7 @@ fun MainScreen(
                             .background(if (selectedTab == index) Color(0xFFFF9800) else Color.DarkGray)
                     ) {
                         Text(
-                            text = title.translated().value,
+                            text = title,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -413,7 +413,7 @@ fun SongListRowCard(song: Songs, onClick: (String) -> Unit) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = song.name.translated().value ?: "Unknown Song",
+                    text = song.name ?: "Unknown Song",
                     color = Color(0xFF4DA0FF),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
@@ -470,7 +470,7 @@ fun SongGridCard(song: Songs, onClick: (String) -> Unit) {
                     .padding(10.dp)
             ) {
                 Text(
-                    text = song.name.translated().value ?: "Unknown Song",
+                    text = song.name ?: "Unknown Song",
                     color = Color(0xFF4DA0FF),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,

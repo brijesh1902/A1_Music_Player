@@ -53,8 +53,6 @@ class MyApplication : Application() {
         super.onCreate()
         instanceVal = this
 
-        LingualSDK.init(this, R.string::class.java.fields)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL, NAME, NotificationManager.IMPORTANCE_HIGH).apply {
                 description = DESCRIPTION
